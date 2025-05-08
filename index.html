@@ -183,25 +183,8 @@ function create() {
     //computers.create(x, y, 'computer').setScale(0.7);
   //}
   computers = this.physics.add.group();
-  const posiciones = [];
-
-  for (let i = 0; i < 5; i++) {
-    let x, y, intentos = 0;
-
-    do {
-      x = Phaser.Math.Between(offsetX + 50, offsetX + juegoAncho - 50);
-      y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
-      intentos++;
-    } while (
-      (
-        Phaser.Math.Distance.Between(x, y, offsetX + 100, offsetY + 100) < 80 || // muy cerca del jugador
-        posiciones.some(p => Phaser.Math.Distance.Between(x, y, p.x, p.y) < 60)  // muy cerca de otro computador
-      ) && intentos < 20
-    );
-
-    posiciones.push({ x, y });
-    computers.create(x, y, 'computer').setScale(0.7);
-  }
+  this.physics.add.overlap(player, computers, collectComputer, null, this);
+  crearComputador(this);
 
   obstacles = this.physics.add.group();
   this.time.addEvent({
@@ -255,7 +238,28 @@ function create() {
     });
   }
 }
+function crearComputador(scene) {
+  if (computers.countActive(true) > 0) return; // ya hay uno
 
+  let x, y, intentos = 0;
+  do {
+    x = Phaser.Math.Between(offsetX + 50, offsetX + juegoAncho - 50);
+    y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
+    intentos++;
+  } while (
+    Phaser.Math.Distance.Between(x, y, player.x, player.y) < 100 && intentos < 20
+  );
+
+  const comp = computers.create(x, y, 'computer').setScale(0.7);
+
+  // Si no se recoge en 5 segundos, desaparece y genera otro
+  scene.time.delayedCall(5000, () => {
+    if (comp.active) {
+      comp.disableBody(true, true);
+      crearComputador(scene);
+    }
+  });
+}
 function update() {
   let velocityX = 0, velocityY = 0;
   if (cursors.left.isDown) velocityX = -velocityScale;
@@ -273,16 +277,8 @@ function collectComputer(player, computer) {
   collectSound.play();
   computer.disableBody(true, true);
   collected++;
-  document.getElementById('contador').textContent = `Computadores: ${collected} / 5`;
-  if (collected === 5) {
-    clearInterval(cronometro);
-    const tiempoTexto = document.getElementById('tiempo').textContent.replace('Tiempo: ', '');
-    guardarEnRankingRemoto(nombreJugador, tiempoTexto);
-    setTimeout(() => {
-      alert('🎉 ¡Misión cumplida!\n\nRecogiste todos los computadores y esquivaste las herramientas.');
-      window.location.reload();
-    }, 300);
-  }
+  document.getElementById('contador').textContent = `Computadores: ${collected}`;
+  crearComputador(player.scene);
 }
 
 function hitObstacle(player, obstacle) {
