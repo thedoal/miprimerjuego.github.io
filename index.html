@@ -191,17 +191,6 @@ function create() {
     delay: 1500,
     loop: true,
     callback: () => {
-      const x = Phaser.Math.Between(offsetX + 20, offsetX + juegoAncho - 20);
-      const tool = obstacles.create(x, offsetY - 20, 'tool').setScale(0.4);
-      //tool.setVelocityY(Phaser.Math.Between(150, 250));
-      let velocidadBase = 250 + tiempo * 2; // más rápido con el tiempo
-      tool.setVelocityY(Phaser.Math.Between(velocidadBase, velocidadBase + 100));
-    }
-  });
-  this.time.addEvent({
-    delay: 1500,
-    loop: true,
-    callback: () => {
       const cantidadObstaculos = 1 + Math.floor(tiempo / 10) + Math.floor(collected / 2); // escala con tiempo y computadores
 
       for (let i = 0; i < cantidadObstaculos; i++) {
@@ -267,14 +256,20 @@ function crearComputador(scene) {
 }
 function update() {
   let velocityX = 0, velocityY = 0;
-  if (cursors.left.isDown) velocityX = -velocityScale;
-  else if (cursors.right.isDown) velocityX = velocityScale;
-  if (cursors.up.isDown) velocityY = -velocityScale;
-  else if (cursors.down.isDown) velocityY = velocityScale;
+
+  // Si hay movimiento con joystick, usamos eso
   if (joystickVelocity.x !== 0 || joystickVelocity.y !== 0) {
     velocityX = joystickVelocity.x * velocityScale;
     velocityY = joystickVelocity.y * velocityScale;
+  } else {
+    // Si no, usamos el teclado
+    if (cursors.left.isDown) velocityX = -velocityScale;
+    else if (cursors.right.isDown) velocityX = velocityScale;
+
+    if (cursors.up.isDown) velocityY = -velocityScale;
+    else if (cursors.down.isDown) velocityY = velocityScale;
   }
+
   player.setVelocity(velocityX, velocityY);
 }
 
