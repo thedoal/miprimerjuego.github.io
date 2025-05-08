@@ -183,11 +183,38 @@ function create() {
     //computers.create(x, y, 'computer').setScale(0.7);
   //}
   computers = this.physics.add.group();
-  this.physics.add.overlap(player, computers, collectComputer, null, this);
-  crearComputador(this);
+  const posiciones = [];
+
+  for (let i = 0; i < 5; i++) {
+    let x, y, intentos = 0;
+
+    do {
+      x = Phaser.Math.Between(offsetX + 50, offsetX + juegoAncho - 50);
+      y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
+      intentos++;
+    } while (
+      (
+        Phaser.Math.Distance.Between(x, y, offsetX + 100, offsetY + 100) < 80 || // muy cerca del jugador
+        posiciones.some(p => Phaser.Math.Distance.Between(x, y, p.x, p.y) < 60)  // muy cerca de otro computador
+      ) && intentos < 20
+    );
+
+    posiciones.push({ x, y });
+    computers.create(x, y, 'computer').setScale(0.7);
+  }
 
   obstacles = this.physics.add.group();
-
+  this.time.addEvent({
+    delay: 1500,
+    loop: true,
+    callback: () => {
+      const x = Phaser.Math.Between(offsetX + 20, offsetX + juegoAncho - 20);
+      const tool = obstacles.create(x, offsetY - 20, 'tool').setScale(0.4);
+      //tool.setVelocityY(Phaser.Math.Between(150, 250));
+      let velocidadBase = 250 + tiempo * 2; // más rápido con el tiempo
+      tool.setVelocityY(Phaser.Math.Between(velocidadBase, velocidadBase + 100));
+    }
+  });
   this.time.addEvent({
     delay: 1500,
     loop: true,
@@ -242,7 +269,7 @@ function update() {
   player.setVelocity(velocityX, velocityY);
 }
 
-/*function collectComputer(player, computer) {
+function collectComputer(player, computer) {
   collectSound.play();
   computer.disableBody(true, true);
   collected++;
@@ -256,34 +283,6 @@ function update() {
       window.location.reload();
     }, 300);
   }
-}*/
-function crearComputador(scene) {
-  if (computers.countActive(true) > 0) return; // ya hay uno
-
-  let x, y, intentos = 0;
-  do {
-    x = Phaser.Math.Between(offsetX + 50, offsetX + juegoAncho - 50);
-    y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
-    intentos++;
-  } while (
-    Phaser.Math.Distance.Between(x, y, player.x, player.y) < 100 && intentos < 20
-  );
-
-  const comp = computers.create(x, y, 'computer').setScale(0.7);
-  scene.time.delayedCall(5000, () => {
-    if (comp.active) {
-      comp.disableBody(true, true); // desaparece si no fue tomado
-      crearComputador(scene); // genera otro
-    }
-  });
-}
-
-function collectComputer(player, computer) {
-  collectSound.play();
-  computer.disableBody(true, true);
-  collected++;
-  document.getElementById('contador').textContent = `Computadores: ${collected}`;
-  crearComputador(player.scene);
 }
 
 function hitObstacle(player, obstacle) {
