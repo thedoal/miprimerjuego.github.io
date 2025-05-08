@@ -39,6 +39,7 @@
 
 <script>
 let direction = { x: 0, y: 0 };
+let cursors;
 
 const config = {
   type: Phaser.AUTO,
@@ -60,20 +61,19 @@ let player, items, collected = 0;
 
 function preload() {
   this.load.image('player', 'https://labs.phaser.io/assets/sprites/phaser-dude.png');
-  this.load.image('item', 'https://opengameart.org/sites/default/files/processor.png'); // CPU real
+  this.load.image('item', 'https://opengameart.org/sites/default/files/processor.png');
   this.load.image('background', 'https://labs.phaser.io/assets/skies/space3.png');
 }
 
 function create() {
-  this.add.image(300, 200, 'background').setDisplaySize(600, 400); // ajustado a canvas
-
-  // Escenario delimitado
+  this.add.image(300, 200, 'background').setDisplaySize(600, 400);
   this.physics.world.setBounds(0, 0, 600, 400);
 
   player = this.physics.add.sprite(100, 100, 'player').setScale(0.6);
-  player.setCollideWorldBounds(true); // evita que se salga del canvas
+  player.setCollideWorldBounds(true);
 
-  // Ítems dentro del canvas
+  cursors = this.input.keyboard.createCursorKeys();
+
   items = this.physics.add.group();
   for (let i = 0; i < 5; i++) {
     const x = Phaser.Math.Between(50, 550);
@@ -83,7 +83,7 @@ function create() {
 
   this.physics.add.overlap(player, items, collectItem, null, this);
 
-  // Botones touch
+  // Controles touch
   document.getElementById("left").addEventListener("touchstart", () => direction.x = -150);
   document.getElementById("right").addEventListener("touchstart", () => direction.x = 150);
   document.getElementById("up").addEventListener("touchstart", () => direction.y = -150);
@@ -96,7 +96,16 @@ function create() {
 }
 
 function update() {
-  player.setVelocity(direction.x, direction.y);
+  let velocityX = direction.x;
+  let velocityY = direction.y;
+
+  if (cursors.left.isDown) velocityX = -150;
+  else if (cursors.right.isDown) velocityX = 150;
+
+  if (cursors.up.isDown) velocityY = -150;
+  else if (cursors.down.isDown) velocityY = 150;
+
+  player.setVelocity(velocityX, velocityY);
 }
 
 function collectItem(player, item) {
