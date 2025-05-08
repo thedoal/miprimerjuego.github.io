@@ -286,6 +286,9 @@ function hitObstacle(player, obstacle) {
   document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
   if (vidas <= 0) {
     clearInterval(cronometro);
+    const tiempoTexto = document.getElementById('tiempo').textContent.replace('Tiempo: ', '');
+    guardarEnRankingRemoto(nombreJugador, tiempoTexto); // ✅ Guarda cuando pierde
+
     setTimeout(() => {
       alert('💥 ¡Te golpearon demasiadas veces!\n\nFin del juego.');
       window.location.reload();
