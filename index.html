@@ -182,7 +182,7 @@ function create() {
     //const y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
     //computers.create(x, y, 'computer').setScale(0.7);
   //}
-  computers = this.physics.add.group();
+ /*  computers = this.physics.add.group();
   const posiciones = [];
 
   for (let i = 0; i < 5; i++) {
@@ -197,11 +197,11 @@ function create() {
         Phaser.Math.Distance.Between(x, y, offsetX + 100, offsetY + 100) < 80 || // muy cerca del jugador
         posiciones.some(p => Phaser.Math.Distance.Between(x, y, p.x, p.y) < 60)  // muy cerca de otro computador
       ) && intentos < 20
-    );
+    ); 
 
     posiciones.push({ x, y });
     computers.create(x, y, 'computer').setScale(0.7);
-  }
+  }*/
 
   obstacles = this.physics.add.group();
   this.time.addEvent({
@@ -253,8 +253,29 @@ function create() {
       joystickVelocity = { x: 0, y: 0 };
     });
   }
+  computers = this.physics.add.group();
+  crearComputador(this);
 }
+function crearComputador(scene) {
+  if (computers.countActive(true) > 0) return; // ya hay uno
 
+  let x, y, intentos = 0;
+  do {
+    x = Phaser.Math.Between(offsetX + 50, offsetX + juegoAncho - 50);
+    y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
+    intentos++;
+  } while (
+    Phaser.Math.Distance.Between(x, y, player.x, player.y) < 100 && intentos < 20
+  );
+
+  const comp = computers.create(x, y, 'computer').setScale(0.7);
+  scene.time.delayedCall(5000, () => {
+    if (comp.active) {
+      comp.disableBody(true, true); // desaparece si no fue tomado
+      crearComputador(scene); // crea otro
+    }
+  });
+}
 function update() {
   let velocityX = 0, velocityY = 0;
   if (cursors.left.isDown) velocityX = -velocityScale;
