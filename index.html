@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Juego con sonidos y obstáculos</title>
+  <title>Juego con vidas y correcciones</title>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.9.0/dist/nipplejs.min.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,6 +29,22 @@
       display: none;
     }
 
+    #hud {
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: sans-serif;
+      font-size: 20px;
+      font-weight: bold;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 6px 14px;
+      border-radius: 10px;
+      z-index: 1001;
+      display: flex;
+      gap: 30px;
+    }
+
     @media (max-width: 899px) {
       #joystick-zone {
         display: block;
@@ -38,6 +54,10 @@
 </head>
 <body>
 
+<div id="hud">
+  <div id="contador">Computadores: 0 / 5</div>
+  <div id="vidas">Vidas: 3</div>
+</div>
 <div id="joystick-zone"></div>
 
 <script>
@@ -46,6 +66,7 @@ let obstacles;
 let joystickVelocity = { x: 0, y: 0 };
 let velocityScale = 200;
 let collectSound, hitSound;
+let vidas = 3;
 
 const config = {
   type: Phaser.AUTO,
@@ -162,25 +183,35 @@ function update() {
   player.setVelocity(velocityX, velocityY);
 
   obstacles.children.iterate(obstacle => {
-  if (obstacle && obstacle.y > this.offsetY + this.juegoAlto + 20) {
-    obstacle.destroy();
-  }
-});
+    if (obstacle && obstacle.y > this.offsetY + this.juegoAlto + 20) {
+      obstacle.destroy();
+    }
+  });
 }
 
 function collectComputer(player, computer) {
   collectSound.play();
   computer.disableBody(true, true);
   collected++;
+  document.getElementById('contador').textContent = `Computadores: ${collected} / 5`;
   if (collected === 5) {
-    alert('🎉 ¡Misión cumplida! Recogiste todos los computadores y esquivaste las herramientas!');
+    setTimeout(() => {
+      alert('🎉 ¡Misión cumplida! Recogiste todos los computadores y esquivaste las herramientas!');
+    }, 300);
   }
 }
 
 function hitObstacle(player, obstacle) {
+  obstacle.disableBody(true, true);
   hitSound.play();
-  alert('💥 ¡Cuidado! Te golpeó una herramienta. ¡Intenta de nuevo!');
-  window.location.reload();
+  vidas--;
+  document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
+  if (vidas <= 0) {
+    setTimeout(() => {
+      alert('💥 ¡Te golpearon demasiadas veces! Fin del juego.');
+      window.location.reload();
+    }, 300);
+  }
 }
 
 new Phaser.Game(config);
