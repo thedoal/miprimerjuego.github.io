@@ -162,10 +162,10 @@ function update() {
   player.setVelocity(velocityX, velocityY);
 
   obstacles.children.iterate(obstacle => {
-    if (obstacle.y > this.offsetY + this.juegoAlto + 20) {
-      obstacle.destroy();
-    }
-  });
+  if (obstacle && obstacle.y > this.offsetY + this.juegoAlto + 20) {
+    obstacle.destroy();
+  }
+});
 }
 
 function collectComputer(player, computer) {
