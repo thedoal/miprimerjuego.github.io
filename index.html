@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Juego con Joystick</title>
+  <title>Juego con Joystick y Área Ajustada</title>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.9.0/dist/nipplejs.min.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,7 +26,7 @@
       width: 150px;
       height: 150px;
       z-index: 1000;
-      display: none; /* por defecto oculto en PC */
+      display: none; /* oculto en PC */
     }
 
     @media (max-width: 899px) {
@@ -65,26 +65,26 @@ const config = {
 
 function preload() {
   this.load.image('student', 'https://labs.phaser.io/assets/sprites/phaser-dude.png');
-  this.load.image('computer', 'icons/computador.png'); // usa tu imagen personalizada
+  this.load.image('computer', 'icons/computer.png');
 }
 
 function create() {
   // Fondo blanco
   this.bg = this.add.rectangle(0, 0, this.sys.game.config.width, this.sys.game.config.height, 0xffffff).setOrigin(0);
 
-  // Área jugable
-  this.juegoAncho = 600;
-  this.juegoAlto = 400;
+  // Área jugable más grande
+  this.juegoAncho = 900;
+  this.juegoAlto = 600;
   this.offsetX = (this.sys.game.config.width - this.juegoAncho) / 2;
   this.offsetY = (this.sys.game.config.height - this.juegoAlto) / 2;
 
-  // Marco negro
+  // Marco visible
   this.marco = this.add.rectangle(this.offsetX, this.offsetY, this.juegoAncho, this.juegoAlto)
     .setOrigin(0)
     .setStrokeStyle(4, 0x000000)
     .setDepth(1);
 
-  // Área física delimitada
+  // Limite físico
   this.physics.world.setBounds(this.offsetX, this.offsetY, this.juegoAncho, this.juegoAlto);
 
   // Jugador
@@ -94,17 +94,17 @@ function create() {
   // Teclado
   cursors = this.input.keyboard.createCursorKeys();
 
-  // Objetos a recolectar
+  // Computadores
   computers = this.physics.add.group();
   for (let i = 0; i < 5; i++) {
     const x = Phaser.Math.Between(this.offsetX + 50, this.offsetX + this.juegoAncho - 50);
     const y = Phaser.Math.Between(this.offsetY + 50, this.offsetY + this.juegoAlto - 50);
-    computers.create(x, y, 'computer').setScale(0.25);
+    computers.create(x, y, 'computer').setScale(0.8);
   }
 
   this.physics.add.overlap(player, computers, collectComputer, null, this);
 
-  // Joystick solo en móviles
+  // Joystick táctil solo en móvil
   if (window.innerWidth < 900) {
     const joystickZone = document.getElementById('joystick-zone');
     const joystickManager = nipplejs.create({
@@ -115,9 +115,9 @@ function create() {
     });
 
     joystickManager.on('move', (evt, data) => {
-      const force = data.force > 1 ? 1 : data.force;
+      const force = Math.min(data.force, 1);
       joystickVelocity.x = Math.cos(data.angle.radian) * force;
-      joystickVelocity.y = Math.sin(data.angle.radian) * force;
+      joystickVelocity.y = Math.sin(data.angle.radian) * force; // Y corregido (sin invertir)
     });
 
     joystickManager.on('end', () => {
@@ -133,13 +133,13 @@ function update() {
 
   let velocityX = 0, velocityY = 0;
 
-  // Movimiento por teclado (PC)
+  // Teclado
   if (cursors.left.isDown) velocityX = -150;
   else if (cursors.right.isDown) velocityX = 150;
   if (cursors.up.isDown) velocityY = -150;
   else if (cursors.down.isDown) velocityY = 150;
 
-  // Movimiento por joystick (móvil)
+  // Joystick táctil
   if (joystickVelocity.x !== 0 || joystickVelocity.y !== 0) {
     velocityX = joystickVelocity.x * 150;
     velocityY = joystickVelocity.y * 150;
