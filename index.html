@@ -208,11 +208,23 @@ function create() {
     delay: 1500,
     loop: true,
     callback: () => {
-      const x = Phaser.Math.Between(offsetX + 20, offsetX + juegoAncho - 20);
-      const tool = obstacles.create(x, offsetY - 20, 'tool').setScale(0.4);
-      //tool.setVelocityY(Phaser.Math.Between(150, 250));
-      let velocidadBase = 250 + tiempo * 2; // más rápido con el tiempo
-      tool.setVelocityY(Phaser.Math.Between(velocidadBase, velocidadBase + 100));
+      // Obstáculo base
+      const x1 = Phaser.Math.Between(offsetX + 20, offsetX + juegoAncho - 20);
+      const tool1 = obstacles.create(x1, offsetY - 20, 'tool').setScale(0.4);
+      tool1.setVelocityY(Phaser.Math.Between(300, 450)); // velocidad aumentada
+
+      // Aumenta dificultad con el tiempo: cada 15 seg aprox, se agrega otro
+      if (tiempo > 5) {
+        const x2 = Phaser.Math.Between(offsetX + 20, offsetX + juegoAncho - 20);
+        const tool2 = obstacles.create(x2, offsetY - 20, 'tool').setScale(0.4);
+        tool2.setVelocityY(Phaser.Math.Between(350, 500));
+      }
+
+      if (tiempo > 10) {
+        const x3 = Phaser.Math.Between(offsetX + 20, offsetX + juegoAncho - 20);
+        const tool3 = obstacles.create(x3, offsetY - 20, 'tool').setScale(0.4);
+        tool3.setVelocityY(Phaser.Math.Between(380, 520));
+      }
     }
   });
 
