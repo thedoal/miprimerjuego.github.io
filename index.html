@@ -13,6 +13,7 @@
       overflow: hidden;
       height: 100%;
     }
+
     canvas {
       display: block;
       margin: auto;
@@ -36,11 +37,17 @@
       font-size: 28px;
       min-width: 60px;
     }
+
+    @media (min-width: 900px) {
+      .controls {
+        display: none; /* oculta controles táctiles en pantallas grandes */
+      }
+    }
   </style>
 </head>
 <body>
 
-<!-- CONTROLES TÁCTILES -->
+<!-- Botones táctiles (sólo visibles en móviles) -->
 <div class="controls">
   <button id="left">◀️</button>
   <button id="up">🔼</button>
@@ -49,23 +56,18 @@
 </div>
 
 <script>
-let cursors;
-let player;
-let items;
+let player, cursors, items;
 let collected = 0;
 
-let moveLeft = false;
-let moveRight = false;
-let moveUp = false;
-let moveDown = false;
+let moveLeft = false, moveRight = false, moveUp = false, moveDown = false;
 
 const config = {
   type: Phaser.AUTO,
   scale: {
-    mode: Phaser.Scale.RESIZE, // ADAPTA AUTOMÁTICAMENTE
+    mode: Phaser.Scale.RESIZE,
     autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: 600,
-    height: 400
+    width: window.innerWidth,
+    height: window.innerHeight
   },
   physics: {
     default: 'arcade',
@@ -90,7 +92,7 @@ function create() {
 
   this.physics.world.setBounds(0, 0, this.sys.game.config.width, this.sys.game.config.height);
 
-  player = this.physics.add.sprite(100, 100, 'player').setScale(0.6);
+  player = this.physics.add.sprite(150, 150, 'player').setScale(0.6);
   player.setCollideWorldBounds(true);
 
   cursors = this.input.keyboard.createCursorKeys();
@@ -104,7 +106,7 @@ function create() {
 
   this.physics.add.overlap(player, items, collectItem, null, this);
 
-  // BOTONES TOUCH
+  // TOUCH BUTTONS
   document.getElementById("left").addEventListener("touchstart", () => moveLeft = true);
   document.getElementById("right").addEventListener("touchstart", () => moveRight = true);
   document.getElementById("up").addEventListener("touchstart", () => moveUp = true);
@@ -117,7 +119,6 @@ function create() {
 }
 
 function update() {
-  // Ajustar fondo y límites al redimensionar
   this.bg.setDisplaySize(this.sys.game.config.width, this.sys.game.config.height);
   this.physics.world.setBounds(0, 0, this.sys.game.config.width, this.sys.game.config.height);
 
@@ -126,6 +127,7 @@ function update() {
 
   if (cursors.left.isDown) velocityX = -150;
   else if (cursors.right.isDown) velocityX = 150;
+
   if (cursors.up.isDown) velocityY = -150;
   else if (cursors.down.isDown) velocityY = 150;
 
