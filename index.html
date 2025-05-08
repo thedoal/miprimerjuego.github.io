@@ -299,7 +299,7 @@ function hitObstacle(player, obstacle) {
 function guardarEnRankingRemoto(nombre, tiempo) {
   fetch(API_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' }, // ✅ MUY IMPORTANTE
+    //headers: { 'Content-Type': 'application/json' }, // ✅ MUY IMPORTANTE
     body: JSON.stringify({
       nombre,
       tiempo,
