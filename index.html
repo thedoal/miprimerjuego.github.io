@@ -61,7 +61,7 @@
     @media (max-width: 899px) {
       #joystick-zone {
         display: block;
-        bottom: 30px;
+        bottom: 20px;
       }
       #ranking {
         top: unset;
@@ -168,10 +168,30 @@ function create() {
 
   this.physics.world.setBounds(offsetX, offsetY, juegoAncho, juegoAlto);
 
+  //computers = this.physics.add.group();
+  //for (let i = 0; i < 5; i++) {
+    //const x = Phaser.Math.Between(offsetX + 50, offsetX + juegoAncho - 50);
+    //const y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
+    //computers.create(x, y, 'computer').setScale(0.7);
+  //}
   computers = this.physics.add.group();
+  const posiciones = [];
+
   for (let i = 0; i < 5; i++) {
-    const x = Phaser.Math.Between(offsetX + 50, offsetX + juegoAncho - 50);
-    const y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
+    let x, y, intentos = 0;
+
+    do {
+      x = Phaser.Math.Between(offsetX + 50, offsetX + juegoAncho - 50);
+      y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
+      intentos++;
+    } while (
+      (
+        Phaser.Math.Distance.Between(x, y, offsetX + 100, offsetY + 100) < 80 || // muy cerca del jugador
+        posiciones.some(p => Phaser.Math.Distance.Between(x, y, p.x, p.y) < 60)  // muy cerca de otro computador
+      ) && intentos < 20
+    );
+
+    posiciones.push({ x, y });
     computers.create(x, y, 'computer').setScale(0.7);
   }
 
