@@ -220,7 +220,7 @@ function create() {
 
   mostrarRankingRemoto();
 
-  if (window.innerWidth < 900) {
+  if (window.innerWidth < 900 && !window.joystickCreado) {
     const joystickZone = document.getElementById('joystick-zone');
     const joystickManager = nipplejs.create({
       zone: joystickZone,
@@ -228,14 +228,18 @@ function create() {
       position: { left: '50%', top: '50%' },
       color: 'blue'
     });
+
     joystickManager.on('move', (evt, data) => {
       const force = Math.min(data.force, 1);
       joystickVelocity.x = Math.cos(data.angle.radian) * force;
       joystickVelocity.y = Math.sin(data.angle.radian) * force * -1;
     });
+
     joystickManager.on('end', () => {
       joystickVelocity = { x: 0, y: 0 };
     });
+
+    window.joystickCreado = true; // para no volver a crearlo
   }
   crearComputador(this);
 }
