@@ -184,7 +184,7 @@ function create() {
   //}
   computers = this.physics.add.group();
   this.physics.add.overlap(player, computers, collectComputer, null, this);
-  crearComputador(this);
+ 
 
   obstacles = this.physics.add.group();
   this.time.addEvent({
@@ -237,6 +237,7 @@ function create() {
       joystickVelocity = { x: 0, y: 0 };
     });
   }
+  crearComputador(this);
 }
 function crearComputador(scene) {
   if (computers.countActive(true) > 0) return; // ya hay uno
