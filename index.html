@@ -103,7 +103,7 @@ function create() {
   for (let i = 0; i < 5; i++) {
     const x = Phaser.Math.Between(this.offsetX + 50, this.offsetX + this.juegoAncho - 50);
     const y = Phaser.Math.Between(this.offsetY + 50, this.offsetY + this.juegoAlto - 50);
-    computers.create(x, y, 'computer').setScale(0.25);
+    computers.create(x, y, 'computer').setScale(0.7);
   }
 
   obstacles = this.physics.add.group();
