@@ -1,1 +1,113 @@
-Hello World
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Juego del Laberinto Digital</title>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+  <style>
+    body { margin: 0; background: #111; overflow: hidden; }
+    canvas { display: block; margin: auto; }
+
+    .controls {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 15px;
+      z-index: 10;
+    }
+
+    .controls button {
+      background-color: white;
+      border: 2px solid black;
+      border-radius: 10px;
+      padding: 20px;
+      font-size: 28px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- CONTROLES TOUCH -->
+<div class="controls">
+  <button id="left">◀️</button>
+  <button id="up">🔼</button>
+  <button id="down">🔽</button>
+  <button id="right">▶️</button>
+</div>
+
+<script>
+let direction = { x: 0, y: 0 };
+
+const config = {
+  type: Phaser.AUTO,
+  width: 600,
+  height: 400,
+  parent: document.body,
+  physics: {
+    default: 'arcade',
+    arcade: { gravity: { y: 0 }, debug: false }
+  },
+  scene: {
+    preload,
+    create,
+    update
+  }
+};
+
+let player, items, collected = 0;
+
+function preload() {
+  this.load.image('player', 'https://labs.phaser.io/assets/sprites/phaser-dude.png');
+  this.load.image('item', 'https://opengameart.org/sites/default/files/processor.png'); // CPU real
+  this.load.image('background', 'https://labs.phaser.io/assets/skies/space3.png');
+}
+
+function create() {
+  this.add.image(300, 200, 'background').setDisplaySize(600, 400); // ajustado a canvas
+
+  // Escenario delimitado
+  this.physics.world.setBounds(0, 0, 600, 400);
+
+  player = this.physics.add.sprite(100, 100, 'player').setScale(0.6);
+  player.setCollideWorldBounds(true); // evita que se salga del canvas
+
+  // Ítems dentro del canvas
+  items = this.physics.add.group();
+  for (let i = 0; i < 5; i++) {
+    const x = Phaser.Math.Between(50, 550);
+    const y = Phaser.Math.Between(50, 350);
+    items.create(x, y, 'item').setScale(0.5);
+  }
+
+  this.physics.add.overlap(player, items, collectItem, null, this);
+
+  // Botones touch
+  document.getElementById("left").addEventListener("touchstart", () => direction.x = -150);
+  document.getElementById("right").addEventListener("touchstart", () => direction.x = 150);
+  document.getElementById("up").addEventListener("touchstart", () => direction.y = -150);
+  document.getElementById("down").addEventListener("touchstart", () => direction.y = 150);
+
+  document.getElementById("left").addEventListener("touchend", () => direction.x = 0);
+  document.getElementById("right").addEventListener("touchend", () => direction.x = 0);
+  document.getElementById("up").addEventListener("touchend", () => direction.y = 0);
+  document.getElementById("down").addEventListener("touchend", () => direction.y = 0);
+}
+
+function update() {
+  player.setVelocity(direction.x, direction.y);
+}
+
+function collectItem(player, item) {
+  item.disableBody(true, true);
+  collected++;
+  if (collected === 5) {
+    alert('¡Misión cumplida! Has recolectado todas las piezas del computador!');
+  }
+}
+
+new Phaser.Game(config);
+</script>
+</body>
+</html>
