@@ -85,8 +85,9 @@ function preload() {
 }
 
 function create() {
-  this.bg = this.add.image(0, 0, 'background').setOrigin(0);
-  this.bg.setDisplaySize(this.sys.game.config.width, this.sys.game.config.height);
+  //this.bg = this.add.image(0, 0, 'background').setOrigin(0);
+  //this.bg.setDisplaySize(this.sys.game.config.width, this.sys.game.config.height);
+  this.bg = this.add.rectangle(0, 0, this.sys.game.config.width, this.sys.game.config.height, 0xffffff).setOrigin(0);
   this.physics.world.setBounds(0, 0, this.sys.game.config.width, this.sys.game.config.height);
 
   player = this.physics.add.sprite(100, 100, 'student').setScale(1.5);
@@ -116,7 +117,9 @@ function create() {
 }
 
 function update() {
-  this.bg.setDisplaySize(this.sys.game.config.width, this.sys.game.config.height);
+  //this.bg.setDisplaySize(this.sys.game.config.width, this.sys.game.config.height);
+  this.bg.width = this.sys.game.config.width;
+  this.bg.height = this.sys.game.config.height;
   this.physics.world.setBounds(0, 0, this.sys.game.config.width, this.sys.game.config.height);
 
   let velocityX = 0, velocityY = 0;
