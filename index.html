@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Juego del Laberinto Digital</title>
+  <title>Juego del Estudiante Explorador</title>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
@@ -40,14 +40,14 @@
 
     @media (min-width: 900px) {
       .controls {
-        display: none; /* oculta controles táctiles en pantallas grandes */
+        display: none;
       }
     }
   </style>
 </head>
 <body>
 
-<!-- Botones táctiles (sólo visibles en móviles) -->
+<!-- Botones táctiles -->
 <div class="controls">
   <button id="left">◀️</button>
   <button id="up">🔼</button>
@@ -56,9 +56,7 @@
 </div>
 
 <script>
-let player, cursors, items;
-let collected = 0;
-
+let player, cursors, computers, collected = 0;
 let moveLeft = false, moveRight = false, moveUp = false, moveDown = false;
 
 const config = {
@@ -81,32 +79,33 @@ const config = {
 };
 
 function preload() {
-  this.load.image('player', 'https://labs.phaser.io/assets/sprites/phaser-dude.png');
-  this.load.image('item', 'https://opengameart.org/sites/default/files/processor.png');
+  // Estudiante pixelado
+  this.load.image('student', 'https://opengameart.org/sites/default/files/styles/large/public/character_16.png');
+  // Icono de computador
+  this.load.image('computer', 'https://opengameart.org/sites/default/files/computer_icon_0.png');
   this.load.image('background', 'https://labs.phaser.io/assets/skies/space3.png');
 }
 
 function create() {
   this.bg = this.add.image(0, 0, 'background').setOrigin(0);
   this.bg.setDisplaySize(this.sys.game.config.width, this.sys.game.config.height);
-
   this.physics.world.setBounds(0, 0, this.sys.game.config.width, this.sys.game.config.height);
 
-  player = this.physics.add.sprite(150, 150, 'player').setScale(0.6);
+  player = this.physics.add.sprite(100, 100, 'student').setScale(1.5);
   player.setCollideWorldBounds(true);
 
   cursors = this.input.keyboard.createCursorKeys();
 
-  items = this.physics.add.group();
+  computers = this.physics.add.group();
   for (let i = 0; i < 5; i++) {
     const x = Phaser.Math.Between(50, this.sys.game.config.width - 50);
     const y = Phaser.Math.Between(50, this.sys.game.config.height - 100);
-    items.create(x, y, 'item').setScale(0.5);
+    computers.create(x, y, 'computer').setScale(0.4);
   }
 
-  this.physics.add.overlap(player, items, collectItem, null, this);
+  this.physics.add.overlap(player, computers, collectComputer, null, this);
 
-  // TOUCH BUTTONS
+  // Botones táctiles
   document.getElementById("left").addEventListener("touchstart", () => moveLeft = true);
   document.getElementById("right").addEventListener("touchstart", () => moveRight = true);
   document.getElementById("up").addEventListener("touchstart", () => moveUp = true);
@@ -122,8 +121,7 @@ function update() {
   this.bg.setDisplaySize(this.sys.game.config.width, this.sys.game.config.height);
   this.physics.world.setBounds(0, 0, this.sys.game.config.width, this.sys.game.config.height);
 
-  let velocityX = 0;
-  let velocityY = 0;
+  let velocityX = 0, velocityY = 0;
 
   if (cursors.left.isDown) velocityX = -150;
   else if (cursors.right.isDown) velocityX = 150;
@@ -139,11 +137,11 @@ function update() {
   player.setVelocity(velocityX, velocityY);
 }
 
-function collectItem(player, item) {
-  item.disableBody(true, true);
+function collectComputer(player, computer) {
+  computer.disableBody(true, true);
   collected++;
   if (collected === 5) {
-    alert('¡Misión cumplida! Has recolectado todas las piezas del computador!');
+    alert('🎉 ¡Misión cumplida! Recogiste todos los computadores del colegio 🖥️📚');
   }
 }
 
