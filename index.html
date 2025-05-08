@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Juego con ranking adaptado</title>
+  <title>Juego con vidas, nombre, ranking y marco</title>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.9.0/dist/nipplejs.min.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -59,6 +59,9 @@
       width: 200px;
     }
     @media (max-width: 899px) {
+      #joystick-zone {
+        display: block;
+      }
       #ranking {
         top: unset;
         bottom: 40px;
@@ -69,9 +72,6 @@
         background: rgba(255, 255, 255, 0.95);
         max-height: 120px;
         box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
-      }
-      #joystick-zone {
-        bottom: 60px;
       }
     }
   </style>
@@ -148,14 +148,14 @@ function create() {
 
   juegoAncho = Math.min(900, this.sys.game.config.width - 40);
 
+  // Si el ancho es menor a 900px (móvil), limitamos el alto
   if (this.sys.game.config.width < 900) {
-    juegoAlto = Math.min(400, this.sys.game.config.height - 100); // bajar marco en móvil
+    juegoAlto = Math.min(400, this.sys.game.config.height - 40); // más bajo en móvil
   } else {
     juegoAlto = Math.min(600, this.sys.game.config.height - 40);
   }
-
   offsetX = (this.sys.game.config.width - juegoAncho) / 2;
-  offsetY = (this.sys.game.config.height - juegoAlto) / 2 + (this.sys.game.config.width < 900 ? 20 : 0);
+  offsetY = (this.sys.game.config.height - juegoAlto) / 2;
 
   this.add.rectangle(offsetX, offsetY, juegoAncho, juegoAlto)
     .setOrigin(0)
@@ -165,15 +165,9 @@ function create() {
   this.physics.world.setBounds(offsetX, offsetY, juegoAncho, juegoAlto);
 
   computers = this.physics.add.group();
-  const posiciones = [];
   for (let i = 0; i < 5; i++) {
-    let x, y, intentos = 0;
-    do {
-      x = Phaser.Math.Between(offsetX + 50, offsetX + juegoAncho - 50);
-      y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
-      intentos++;
-    } while ((Phaser.Math.Distance.Between(x, y, offsetX + 100, offsetY + 100) < 80 || posiciones.some(p => Phaser.Math.Distance.Between(x, y, p.x, p.y) < 60)) && intentos < 20);
-    posiciones.push({x, y});
+    const x = Phaser.Math.Between(offsetX + 50, offsetX + juegoAncho - 50);
+    const y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
     computers.create(x, y, 'computer').setScale(0.7);
   }
 
@@ -214,6 +208,72 @@ function create() {
     });
   }
 }
+
+function update() {
+  let velocityX = 0, velocityY = 0;
+  if (cursors.left.isDown) velocityX = -velocityScale;
+  else if (cursors.right.isDown) velocityX = velocityScale;
+  if (cursors.up.isDown) velocityY = -velocityScale;
+  else if (cursors.down.isDown) velocityY = velocityScale;
+  if (joystickVelocity.x !== 0 || joystickVelocity.y !== 0) {
+    velocityX = joystickVelocity.x * velocityScale;
+    velocityY = joystickVelocity.y * velocityScale;
+  }
+  player.setVelocity(velocityX, velocityY);
+}
+
+function collectComputer(player, computer) {
+  collectSound.play();
+  computer.disableBody(true, true);
+  collected++;
+  document.getElementById('contador').textContent = `Computadores: ${collected} / 5`;
+  if (collected === 5) {
+    clearInterval(cronometro);
+    const tiempoTexto = document.getElementById('tiempo').textContent.replace('Tiempo: ', '');
+    guardarEnRankingRemoto(nombreJugador, tiempoTexto);
+    setTimeout(() => {
+      alert('🎉 ¡Misión cumplida!\n\nRecogiste todos los computadores y esquivaste las herramientas.');
+    }, 300);
+  }
+}
+
+function hitObstacle(player, obstacle) {
+  obstacle.disableBody(true, true);
+  hitSound.play();
+  vidas--;
+  document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
+  if (vidas <= 0) {
+    clearInterval(cronometro);
+    setTimeout(() => {
+      alert('💥 ¡Te golpearon demasiadas veces!\n\nFin del juego.');
+      window.location.reload();
+    }, 300);
+  }
+}
+
+function guardarEnRankingRemoto(nombre, tiempo) {
+  fetch(API_URL, {
+    method: 'POST',
+    body: JSON.stringify({ nombre, tiempo }),
+    //headers: { 'Content-Type': 'application/json' }
+  });
+}
+
+function mostrarRankingRemoto() {
+  fetch(API_URL)
+    .then(res => res.json())
+    .then(data => {
+      const lista = document.getElementById('lista-ranking');
+      lista.innerHTML = '';
+      data.slice(0, 5).forEach((fila, i) => {
+        const li = document.createElement('li');
+        li.textContent = `${i + 1}. ${fila[0]} - ${fila[1]}`;
+        lista.appendChild(li);
+      });
+    });
+}
+
+new Phaser.Game(config);
 </script>
 </body>
 </html>
