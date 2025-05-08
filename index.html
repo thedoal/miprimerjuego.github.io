@@ -61,6 +61,7 @@
     @media (max-width: 899px) {
       #joystick-zone {
         display: block;
+        bottom: 60px;
       }
       #ranking {
         top: unset;
@@ -156,6 +157,9 @@ function create() {
   }
   offsetX = (this.sys.game.config.width - juegoAncho) / 2;
   offsetY = (this.sys.game.config.height - juegoAlto) / 2;
+  if (this.sys.game.config.width < 900) {
+    offsetY += 20; // Baja el marco solo en móviles
+  }
 
   this.add.rectangle(offsetX, offsetY, juegoAncho, juegoAlto)
     .setOrigin(0)
