@@ -5,7 +5,7 @@
   <title>Juego del Laberinto Digital</title>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
   <style>
-    body { margin: 0; background: #111; overflow: hidden; }
+    body { margin: 0; overflow: hidden; background: #000; }
     canvas { display: block; margin: auto; }
 
     .controls {
@@ -15,7 +15,7 @@
       transform: translateX(-50%);
       display: flex;
       gap: 15px;
-      z-index: 10;
+      z-index: 1000;
     }
 
     .controls button {
@@ -29,7 +29,7 @@
 </head>
 <body>
 
-<!-- CONTROLES TOUCH -->
+<!-- Botones Touch -->
 <div class="controls">
   <button id="left">◀️</button>
   <button id="up">🔼</button>
@@ -39,13 +39,19 @@
 
 <script>
 let cursors;
-let touchDirection = { x: 0, y: 0 };
+let player;
+let items;
+let collected = 0;
+
+let moveLeft = false;
+let moveRight = false;
+let moveUp = false;
+let moveDown = false;
 
 const config = {
   type: Phaser.AUTO,
   width: 600,
   height: 400,
-  parent: document.body,
   physics: {
     default: 'arcade',
     arcade: { gravity: { y: 0 }, debug: false }
@@ -56,8 +62,6 @@ const config = {
     update
   }
 };
-
-let player, items, collected = 0;
 
 function preload() {
   this.load.image('player', 'https://labs.phaser.io/assets/sprites/phaser-dude.png');
@@ -83,33 +87,35 @@ function create() {
 
   this.physics.add.overlap(player, items, collectItem, null, this);
 
-  // TOUCH EVENTS
-  document.getElementById("left").addEventListener("touchstart", () => touchDirection.x = -150);
-  document.getElementById("right").addEventListener("touchstart", () => touchDirection.x = 150);
-  document.getElementById("up").addEventListener("touchstart", () => touchDirection.y = -150);
-  document.getElementById("down").addEventListener("touchstart", () => touchDirection.y = 150);
+  // Botones touch (presionar)
+  document.getElementById("left").addEventListener("touchstart", () => moveLeft = true);
+  document.getElementById("right").addEventListener("touchstart", () => moveRight = true);
+  document.getElementById("up").addEventListener("touchstart", () => moveUp = true);
+  document.getElementById("down").addEventListener("touchstart", () => moveDown = true);
 
-  document.getElementById("left").addEventListener("touchend", () => touchDirection.x = 0);
-  document.getElementById("right").addEventListener("touchend", () => touchDirection.x = 0);
-  document.getElementById("up").addEventListener("touchend", () => touchDirection.y = 0);
-  document.getElementById("down").addEventListener("touchend", () => touchDirection.y = 0);
+  // Botones touch (soltar)
+  document.getElementById("left").addEventListener("touchend", () => moveLeft = false);
+  document.getElementById("right").addEventListener("touchend", () => moveRight = false);
+  document.getElementById("up").addEventListener("touchend", () => moveUp = false);
+  document.getElementById("down").addEventListener("touchend", () => moveDown = false);
 }
 
 function update() {
-  let velocityX = touchDirection.x;
-  let velocityY = touchDirection.y;
+  let velocityX = 0;
+  let velocityY = 0;
 
-  // Solo usa teclado si no se está tocando pantalla
-  if (touchDirection.x === 0 && touchDirection.y === 0) {
-    velocityX = 0;
-    velocityY = 0;
+  // Controles de teclado
+  if (cursors.left.isDown) velocityX = -150;
+  else if (cursors.right.isDown) velocityX = 150;
 
-    if (cursors.left.isDown) velocityX = -150;
-    else if (cursors.right.isDown) velocityX = 150;
+  if (cursors.up.isDown) velocityY = -150;
+  else if (cursors.down.isDown) velocityY = 150;
 
-    if (cursors.up.isDown) velocityY = -150;
-    else if (cursors.down.isDown) velocityY = 150;
-  }
+  // Controles táctiles
+  if (moveLeft) velocityX = -150;
+  if (moveRight) velocityX = 150;
+  if (moveUp) velocityY = -150;
+  if (moveDown) velocityY = 150;
 
   player.setVelocity(velocityX, velocityY);
 }
@@ -118,7 +124,7 @@ function collectItem(player, item) {
   item.disableBody(true, true);
   collected++;
   if (collected === 5) {
-    alert('¡Misión cumplida! Has recolectado todas las piezas del computador!');
+    alert('¡Misión cumplida! Has recolectado todas las piezas del computador.');
   }
 }
 
@@ -126,3 +132,4 @@ new Phaser.Game(config);
 </script>
 </body>
 </html>
+
