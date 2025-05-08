@@ -183,8 +183,6 @@ function create() {
     //computers.create(x, y, 'computer').setScale(0.7);
   //}
   computers = this.physics.add.group();
-  this.physics.add.overlap(player, computers, collectComputer, null, this);
- 
 
   obstacles = this.physics.add.group();
   this.time.addEvent({
