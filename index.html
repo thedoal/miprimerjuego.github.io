@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Juego con vidas, nombre y ranking online</title>
+  <title>Juego con vidas, nombre, ranking y marco</title>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.9.0/dist/nipplejs.min.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -41,10 +41,12 @@
       z-index: 1001;
       display: flex;
       gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
     #ranking {
       position: fixed;
-      top: 10px;
+      top: 60px;
       right: 10px;
       width: 200px;
       background: rgba(255, 255, 255, 0.9);
@@ -58,6 +60,13 @@
     @media (max-width: 899px) {
       #joystick-zone {
         display: block;
+      }
+      #ranking {
+        top: unset;
+        bottom: 10px;
+        right: 10px;
+        width: 90%;
+        font-size: 16px;
       }
     }
   </style>
@@ -87,6 +96,8 @@ let collectSound, hitSound;
 let vidas = 3;
 let tiempo = 0;
 let cronometro;
+
+let juegoAncho, juegoAlto, offsetX, offsetY;
 
 const config = {
   type: Phaser.AUTO,
@@ -129,10 +140,22 @@ function create() {
     document.getElementById('tiempo').textContent = `Tiempo: ${min}:${sec}`;
   }, 1000);
 
+  juegoAncho = Math.min(900, this.sys.game.config.width - 40);
+  juegoAlto = Math.min(600, this.sys.game.config.height - 40);
+  offsetX = (this.sys.game.config.width - juegoAncho) / 2;
+  offsetY = (this.sys.game.config.height - juegoAlto) / 2;
+
+  this.add.rectangle(offsetX, offsetY, juegoAncho, juegoAlto)
+    .setOrigin(0)
+    .setStrokeStyle(4, 0xffffff)
+    .setDepth(1);
+
+  this.physics.world.setBounds(offsetX, offsetY, juegoAncho, juegoAlto);
+
   computers = this.physics.add.group();
   for (let i = 0; i < 5; i++) {
-    const x = Phaser.Math.Between(50, 850);
-    const y = Phaser.Math.Between(50, 550);
+    const x = Phaser.Math.Between(offsetX + 50, offsetX + juegoAncho - 50);
+    const y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
     computers.create(x, y, 'computer').setScale(0.7);
   }
 
@@ -141,19 +164,37 @@ function create() {
     delay: 1500,
     loop: true,
     callback: () => {
-      const x = Phaser.Math.Between(20, 880);
-      const tool = obstacles.create(x, -20, 'tool').setScale(0.4);
+      const x = Phaser.Math.Between(offsetX + 20, offsetX + juegoAncho - 20);
+      const tool = obstacles.create(x, offsetY - 20, 'tool').setScale(0.4);
       tool.setVelocityY(Phaser.Math.Between(150, 250));
     }
   });
 
-  player = this.physics.add.sprite(100, 100, 'student').setScale(1.5);
+  player = this.physics.add.sprite(offsetX + 100, offsetY + 100, 'student').setScale(1.5);
   player.setCollideWorldBounds(true);
   cursors = this.input.keyboard.createCursorKeys();
   this.physics.add.overlap(player, computers, collectComputer, null, this);
   this.physics.add.overlap(player, obstacles, hitObstacle, null, this);
 
   mostrarRankingRemoto();
+
+  if (window.innerWidth < 900) {
+    const joystickZone = document.getElementById('joystick-zone');
+    const joystickManager = nipplejs.create({
+      zone: joystickZone,
+      mode: 'static',
+      position: { left: '50%', top: '50%' },
+      color: 'blue'
+    });
+    joystickManager.on('move', (evt, data) => {
+      const force = Math.min(data.force, 1);
+      joystickVelocity.x = Math.cos(data.angle.radian) * force;
+      joystickVelocity.y = Math.sin(data.angle.radian) * force * -1;
+    });
+    joystickManager.on('end', () => {
+      joystickVelocity = { x: 0, y: 0 };
+    });
+  }
 }
 
 function update() {
