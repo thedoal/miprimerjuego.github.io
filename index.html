@@ -232,6 +232,7 @@ function create() {
   player.setCollideWorldBounds(true);
   cursors = this.input.keyboard.createCursorKeys();
   this.physics.add.overlap(player, computers, collectComputer, null, this);
+  crearComputador(this);
   this.physics.add.overlap(player, obstacles, hitObstacle, null, this);
 
   mostrarRankingRemoto();
@@ -254,7 +255,7 @@ function create() {
     });
   }
   computers = this.physics.add.group();
-  crearComputador(this);
+
 }
 function crearComputador(scene) {
   if (computers.countActive(true) > 0) return; // ya hay uno
@@ -293,8 +294,9 @@ function collectComputer(player, computer) {
   collectSound.play();
   computer.disableBody(true, true);
   collected++;
-  document.getElementById('contador').textContent = `Computadores: ${collected} / 5`;
-  if (collected === 5) {
+  document.getElementById('contador').textContent = `Computadores: ${collected}`;
+  crearComputador(player.scene);
+  /*if (collected === 5) {
     clearInterval(cronometro);
     const tiempoTexto = document.getElementById('tiempo').textContent.replace('Tiempo: ', '');
     guardarEnRankingRemoto(nombreJugador, tiempoTexto);
@@ -302,7 +304,7 @@ function collectComputer(player, computer) {
       alert('🎉 ¡Misión cumplida!\n\nRecogiste todos los computadores y esquivaste las herramientas.');
       window.location.reload();
     }, 300);
-  }
+  }*/
 }
 
 function hitObstacle(player, obstacle) {
