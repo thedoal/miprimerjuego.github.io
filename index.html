@@ -296,7 +296,7 @@ function hitObstacle(player, obstacle) {
 function guardarEnRankingRemoto(nombre, tiempo) {
   fetch(API_URL, {
     method: 'POST',
-    body: JSON.stringify({ nombre, tiempo }),
+    body: JSON.stringify({ nombre, tiempo, computadores: collected}),
     //headers: { 'Content-Type': 'application/json' }
   });
 }
@@ -309,7 +309,7 @@ function mostrarRankingRemoto() {
       lista.innerHTML = '';
       data.slice(0, 5).forEach((fila, i) => {
         const li = document.createElement('li');
-        li.textContent = `${i + 1}. ${fila[0]} - ${fila[1]}`;
+        li.textContent = `${i + 1}. ${fila[0]} - ${fila[1]} - Comp: ${fila[2]}`;
         lista.appendChild(li);
       });
     });
