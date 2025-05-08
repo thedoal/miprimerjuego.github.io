@@ -82,7 +82,7 @@
 <div id="joystick-zone"></div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbyZME9hiFHoy1zogttc4vOBFKERF9SBa3VT5k3WVmiVLYmZtiuhUjb1OkbYPShA-ctz/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyz1zoWDRHusXiCdIb-UpddKuCfkg0j7mCSEdb2aTOTYw8JGGBycN8gZzl99lKnkJ_2/exec';
 
 let nombreJugador = prompt('👋 ¡Bienvenido! ¿Cuál es tu nombre?');
 if (!nombreJugador) nombreJugador = 'Jugador';
@@ -243,7 +243,7 @@ function guardarEnRankingRemoto(nombre, tiempo) {
   fetch(API_URL, {
     method: 'POST',
     body: JSON.stringify({ nombre, tiempo }),
-    headers: { 'Content-Type': 'application/json' }
+    //headers: { 'Content-Type': 'application/json' }
   });
 }
 
