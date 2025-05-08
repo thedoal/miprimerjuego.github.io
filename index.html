@@ -10,7 +10,7 @@
     html, body {
       margin: 0;
       padding: 0;
-      background: #000;
+      background: #fff;
       overflow: hidden;
       height: 100%;
     }
@@ -25,7 +25,6 @@
       width: 150px;
       height: 150px;
       z-index: 1000;
-      display: none;
     }
     #hud {
       position: fixed;
@@ -101,6 +100,7 @@ let juegoAncho, juegoAlto, offsetX, offsetY;
 
 const config = {
   type: Phaser.AUTO,
+  backgroundColor: '#ffffff',
   scale: {
     mode: Phaser.Scale.RESIZE,
     autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -147,7 +147,7 @@ function create() {
 
   this.add.rectangle(offsetX, offsetY, juegoAncho, juegoAlto)
     .setOrigin(0)
-    .setStrokeStyle(4, 0xffffff)
+    .setStrokeStyle(4, 0x000000)
     .setDepth(1);
 
   this.physics.world.setBounds(offsetX, offsetY, juegoAncho, juegoAlto);
