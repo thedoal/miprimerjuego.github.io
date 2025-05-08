@@ -257,6 +257,7 @@ function collectComputer(player, computer) {
     guardarEnRankingRemoto(nombreJugador, tiempoTexto);
     setTimeout(() => {
       alert('🎉 ¡Misión cumplida!\n\nRecogiste todos los computadores y esquivaste las herramientas.');
+      window.location.reload();
     }, 300);
   }
 }
