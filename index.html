@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Juego con Joystick Corregido</title>
+  <title>Juego con sonidos y obstáculos</title>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.9.0/dist/nipplejs.min.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,7 +42,10 @@
 
 <script>
 let player, cursors, computers, collected = 0;
+let obstacles;
 let joystickVelocity = { x: 0, y: 0 };
+let velocityScale = 200;
+let collectSound, hitSound;
 
 const config = {
   type: Phaser.AUTO,
@@ -65,46 +68,59 @@ const config = {
 
 function preload() {
   this.load.image('student', 'https://labs.phaser.io/assets/sprites/phaser-dude.png');
-  this.load.image('computer', 'icons/computer.png'); // usa tu imagen personalizada
+  this.load.image('computer', 'icons/computador.png');
+  this.load.image('tool', 'https://labs.phaser.io/assets/sprites/spikedball.png');
+
+  // Sonidos
+  this.load.audio('collect', 'https://labs.phaser.io/assets/audio/SoundEffects/p-ping.mp3');
+  this.load.audio('hit', 'https://labs.phaser.io/assets/audio/SoundEffects/shoot1.wav');
 }
 
 function create() {
-  // Fondo blanco
+  collectSound = this.sound.add('collect');
+  hitSound = this.sound.add('hit');
+
   this.bg = this.add.rectangle(0, 0, this.sys.game.config.width, this.sys.game.config.height, 0xffffff).setOrigin(0);
 
-  // Marco dinámico: máximo 900x600 pero se adapta
   this.juegoAncho = Math.min(900, this.sys.game.config.width - 40);
   this.juegoAlto = Math.min(600, this.sys.game.config.height - 40);
   this.offsetX = (this.sys.game.config.width - this.juegoAncho) / 2;
   this.offsetY = (this.sys.game.config.height - this.juegoAlto) / 2;
 
-  // Marco visual
   this.marco = this.add.rectangle(this.offsetX, this.offsetY, this.juegoAncho, this.juegoAlto)
     .setOrigin(0)
     .setStrokeStyle(4, 0x000000)
     .setDepth(1);
 
-  // Límite físico de juego
   this.physics.world.setBounds(this.offsetX, this.offsetY, this.juegoAncho, this.juegoAlto);
 
-  // Jugador
   player = this.physics.add.sprite(this.offsetX + 100, this.offsetY + 100, 'student').setScale(1.5);
   player.setCollideWorldBounds(true);
 
-  // Teclado
   cursors = this.input.keyboard.createCursorKeys();
 
-  // Computadores
   computers = this.physics.add.group();
   for (let i = 0; i < 5; i++) {
     const x = Phaser.Math.Between(this.offsetX + 50, this.offsetX + this.juegoAncho - 50);
     const y = Phaser.Math.Between(this.offsetY + 50, this.offsetY + this.juegoAlto - 50);
-    computers.create(x, y, 'computer').setScale(0.7);
+    computers.create(x, y, 'computer').setScale(0.25);
   }
 
-  this.physics.add.overlap(player, computers, collectComputer, null, this);
+  obstacles = this.physics.add.group();
+  this.time.addEvent({
+    delay: 1500,
+    loop: true,
+    callback: () => {
+      const x = Phaser.Math.Between(this.offsetX + 20, this.offsetX + this.juegoAncho - 20);
+      const tool = obstacles.create(x, this.offsetY - 20, 'tool').setScale(0.4);
+      tool.setVelocityY(Phaser.Math.Between(150, 250));
+      tool.setCollideWorldBounds(false);
+    }
+  });
 
-  // Joystick táctil solo en móviles
+  this.physics.add.overlap(player, computers, collectComputer, null, this);
+  this.physics.add.overlap(player, obstacles, hitObstacle, null, this);
+
   if (window.innerWidth < 900) {
     const joystickZone = document.getElementById('joystick-zone');
     const joystickManager = nipplejs.create({
@@ -117,7 +133,7 @@ function create() {
     joystickManager.on('move', (evt, data) => {
       const force = Math.min(data.force, 1);
       joystickVelocity.x = Math.cos(data.angle.radian) * force;
-      joystickVelocity.y = Math.sin(data.angle.radian) * force * -1; // ✅ eje Y corregido
+      joystickVelocity.y = Math.sin(data.angle.radian) * force * -1;
     });
 
     joystickManager.on('end', () => {
@@ -127,34 +143,44 @@ function create() {
 }
 
 function update() {
-  // Fondo y límites ajustables
   this.bg.width = this.sys.game.config.width;
   this.bg.height = this.sys.game.config.height;
   this.physics.world.setBounds(this.offsetX, this.offsetY, this.juegoAncho, this.juegoAlto);
 
   let velocityX = 0, velocityY = 0;
 
-  // Teclado
-  if (cursors.left.isDown) velocityX = -150;
-  else if (cursors.right.isDown) velocityX = 150;
-  if (cursors.up.isDown) velocityY = -150;
-  else if (cursors.down.isDown) velocityY = 150;
+  if (cursors.left.isDown) velocityX = -velocityScale;
+  else if (cursors.right.isDown) velocityX = velocityScale;
+  if (cursors.up.isDown) velocityY = -velocityScale;
+  else if (cursors.down.isDown) velocityY = velocityScale;
 
-  // Joystick táctil
   if (joystickVelocity.x !== 0 || joystickVelocity.y !== 0) {
-    velocityX = joystickVelocity.x * 150;
-    velocityY = joystickVelocity.y * 150;
+    velocityX = joystickVelocity.x * velocityScale;
+    velocityY = joystickVelocity.y * velocityScale;
   }
 
   player.setVelocity(velocityX, velocityY);
+
+  obstacles.children.iterate(obstacle => {
+    if (obstacle.y > this.offsetY + this.juegoAlto + 20) {
+      obstacle.destroy();
+    }
+  });
 }
 
 function collectComputer(player, computer) {
+  collectSound.play();
   computer.disableBody(true, true);
   collected++;
   if (collected === 5) {
-    alert('🎉 ¡Misión cumplida! Recogiste todos los computadores del colegio 🖥️📚');
+    alert('🎉 ¡Misión cumplida! Recogiste todos los computadores y esquivaste las herramientas!');
   }
+}
+
+function hitObstacle(player, obstacle) {
+  hitSound.play();
+  alert('💥 ¡Cuidado! Te golpeó una herramienta. ¡Intenta de nuevo!');
+  window.location.reload();
 }
 
 new Phaser.Game(config);
