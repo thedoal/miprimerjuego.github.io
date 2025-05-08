@@ -38,8 +38,8 @@
 </div>
 
 <script>
-let direction = { x: 0, y: 0 };
 let cursors;
+let touchDirection = { x: 0, y: 0 };
 
 const config = {
   type: Phaser.AUTO,
@@ -83,27 +83,33 @@ function create() {
 
   this.physics.add.overlap(player, items, collectItem, null, this);
 
-  // Controles touch
-  document.getElementById("left").addEventListener("touchstart", () => direction.x = -150);
-  document.getElementById("right").addEventListener("touchstart", () => direction.x = 150);
-  document.getElementById("up").addEventListener("touchstart", () => direction.y = -150);
-  document.getElementById("down").addEventListener("touchstart", () => direction.y = 150);
+  // TOUCH EVENTS
+  document.getElementById("left").addEventListener("touchstart", () => touchDirection.x = -150);
+  document.getElementById("right").addEventListener("touchstart", () => touchDirection.x = 150);
+  document.getElementById("up").addEventListener("touchstart", () => touchDirection.y = -150);
+  document.getElementById("down").addEventListener("touchstart", () => touchDirection.y = 150);
 
-  document.getElementById("left").addEventListener("touchend", () => direction.x = 0);
-  document.getElementById("right").addEventListener("touchend", () => direction.x = 0);
-  document.getElementById("up").addEventListener("touchend", () => direction.y = 0);
-  document.getElementById("down").addEventListener("touchend", () => direction.y = 0);
+  document.getElementById("left").addEventListener("touchend", () => touchDirection.x = 0);
+  document.getElementById("right").addEventListener("touchend", () => touchDirection.x = 0);
+  document.getElementById("up").addEventListener("touchend", () => touchDirection.y = 0);
+  document.getElementById("down").addEventListener("touchend", () => touchDirection.y = 0);
 }
 
 function update() {
-  let velocityX = direction.x;
-  let velocityY = direction.y;
+  let velocityX = touchDirection.x;
+  let velocityY = touchDirection.y;
 
-  if (cursors.left.isDown) velocityX = -150;
-  else if (cursors.right.isDown) velocityX = 150;
+  // Solo usa teclado si no se está tocando pantalla
+  if (touchDirection.x === 0 && touchDirection.y === 0) {
+    velocityX = 0;
+    velocityY = 0;
 
-  if (cursors.up.isDown) velocityY = -150;
-  else if (cursors.down.isDown) velocityY = 150;
+    if (cursors.left.isDown) velocityX = -150;
+    else if (cursors.right.isDown) velocityX = 150;
+
+    if (cursors.up.isDown) velocityY = -150;
+    else if (cursors.down.isDown) velocityY = 150;
+  }
 
   player.setVelocity(velocityX, velocityY);
 }
