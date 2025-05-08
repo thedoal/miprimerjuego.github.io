@@ -144,7 +144,13 @@ function create() {
   }, 1000);
 
   juegoAncho = Math.min(900, this.sys.game.config.width - 40);
-  juegoAlto = Math.min(600, this.sys.game.config.height - 40);
+
+  // Si el ancho es menor a 900px (móvil), limitamos el alto
+  if (this.sys.game.config.width < 900) {
+    juegoAlto = Math.min(400, this.sys.game.config.height - 40); // más bajo en móvil
+  } else {
+    juegoAlto = Math.min(600, this.sys.game.config.height - 40);
+  }
   offsetX = (this.sys.game.config.width - juegoAncho) / 2;
   offsetY = (this.sys.game.config.height - juegoAlto) / 2;
 
