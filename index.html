@@ -45,9 +45,6 @@
     }
     #ranking {
       position: fixed;
-      top: 60px;
-      right: 10px;
-      width: 200px;
       background: rgba(255, 255, 255, 0.9);
       padding: 10px;
       border-radius: 10px;
@@ -55,17 +52,23 @@
       font-size: 14px;
       font-weight: bold;
       z-index: 1001;
+      max-height: 200px;
+      overflow-y: auto;
+      top: 60px;
+      right: 10px;
     }
     @media (max-width: 899px) {
       #joystick-zone {
         display: block;
       }
       #ranking {
-        top: unset;
-        bottom: 10px;
-        right: 10px;
-        width: 90%;
-        font-size: 16px;
+        top: 100px;
+        left: 10px;
+        right: unset;
+        width: 160px;
+        font-size: 13px;
+        background: rgba(255, 255, 255, 0.95);
+        max-height: 120px;
       }
     }
   </style>
