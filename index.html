@@ -4,12 +4,22 @@
   <meta charset="UTF-8">
   <title>Juego del Laberinto Digital</title>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { margin: 0; overflow: hidden; background: #000; }
-    canvas { display: block; margin: auto; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      overflow: hidden;
+      height: 100%;
+    }
+    canvas {
+      display: block;
+      margin: auto;
+    }
 
     .controls {
-      position: absolute;
+      position: fixed;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
@@ -24,12 +34,13 @@
       border-radius: 10px;
       padding: 20px;
       font-size: 28px;
+      min-width: 60px;
     }
   </style>
 </head>
 <body>
 
-<!-- Botones Touch -->
+<!-- CONTROLES TÁCTILES -->
 <div class="controls">
   <button id="left">◀️</button>
   <button id="up">🔼</button>
@@ -50,8 +61,12 @@ let moveDown = false;
 
 const config = {
   type: Phaser.AUTO,
-  width: 600,
-  height: 400,
+  scale: {
+    mode: Phaser.Scale.RESIZE, // ADAPTA AUTOMÁTICAMENTE
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: 600,
+    height: 400
+  },
   physics: {
     default: 'arcade',
     arcade: { gravity: { y: 0 }, debug: false }
@@ -70,8 +85,10 @@ function preload() {
 }
 
 function create() {
-  this.add.image(300, 200, 'background').setDisplaySize(600, 400);
-  this.physics.world.setBounds(0, 0, 600, 400);
+  this.bg = this.add.image(0, 0, 'background').setOrigin(0);
+  this.bg.setDisplaySize(this.sys.game.config.width, this.sys.game.config.height);
+
+  this.physics.world.setBounds(0, 0, this.sys.game.config.width, this.sys.game.config.height);
 
   player = this.physics.add.sprite(100, 100, 'player').setScale(0.6);
   player.setCollideWorldBounds(true);
@@ -80,20 +97,19 @@ function create() {
 
   items = this.physics.add.group();
   for (let i = 0; i < 5; i++) {
-    const x = Phaser.Math.Between(50, 550);
-    const y = Phaser.Math.Between(50, 350);
+    const x = Phaser.Math.Between(50, this.sys.game.config.width - 50);
+    const y = Phaser.Math.Between(50, this.sys.game.config.height - 100);
     items.create(x, y, 'item').setScale(0.5);
   }
 
   this.physics.add.overlap(player, items, collectItem, null, this);
 
-  // Botones touch (presionar)
+  // BOTONES TOUCH
   document.getElementById("left").addEventListener("touchstart", () => moveLeft = true);
   document.getElementById("right").addEventListener("touchstart", () => moveRight = true);
   document.getElementById("up").addEventListener("touchstart", () => moveUp = true);
   document.getElementById("down").addEventListener("touchstart", () => moveDown = true);
 
-  // Botones touch (soltar)
   document.getElementById("left").addEventListener("touchend", () => moveLeft = false);
   document.getElementById("right").addEventListener("touchend", () => moveRight = false);
   document.getElementById("up").addEventListener("touchend", () => moveUp = false);
@@ -101,17 +117,18 @@ function create() {
 }
 
 function update() {
+  // Ajustar fondo y límites al redimensionar
+  this.bg.setDisplaySize(this.sys.game.config.width, this.sys.game.config.height);
+  this.physics.world.setBounds(0, 0, this.sys.game.config.width, this.sys.game.config.height);
+
   let velocityX = 0;
   let velocityY = 0;
 
-  // Controles de teclado
   if (cursors.left.isDown) velocityX = -150;
   else if (cursors.right.isDown) velocityX = 150;
-
   if (cursors.up.isDown) velocityY = -150;
   else if (cursors.down.isDown) velocityY = 150;
 
-  // Controles táctiles
   if (moveLeft) velocityX = -150;
   if (moveRight) velocityX = 150;
   if (moveUp) velocityY = -150;
@@ -124,7 +141,7 @@ function collectItem(player, item) {
   item.disableBody(true, true);
   collected++;
   if (collected === 5) {
-    alert('¡Misión cumplida! Has recolectado todas las piezas del computador.');
+    alert('¡Misión cumplida! Has recolectado todas las piezas del computador!');
   }
 }
 
@@ -132,4 +149,3 @@ new Phaser.Game(config);
 </script>
 </body>
 </html>
-
