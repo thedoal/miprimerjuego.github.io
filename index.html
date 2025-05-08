@@ -196,7 +196,7 @@ function collectComputer(player, computer) {
   document.getElementById('contador').textContent = `Computadores: ${collected} / 5`;
   if (collected === 5) {
     setTimeout(() => {
-      alert('🎉 ¡Misión cumplida! Recogiste todos los computadores y esquivaste las herramientas!');
+      alert('🎉 ¡Misión cumplida!\n\nRecogiste todos los computadores y esquivaste las herramientas.');
     }, 300);
   }
 }
@@ -208,7 +208,7 @@ function hitObstacle(player, obstacle) {
   document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
   if (vidas <= 0) {
     setTimeout(() => {
-      alert('💥 ¡Te golpearon demasiadas veces! Fin del juego.');
+      alert('💥 ¡Te golpearon demasiadas veces!\n\nFin del juego.');
       window.location.reload();
     }, 300);
   }
