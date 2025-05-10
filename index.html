@@ -220,7 +220,7 @@ function create() {
     this.tweens.add({
       targets: ratonDorado,
       alpha: 1,
-      scale: { from: 0.1, to: 0.15 },
+      scale: { from: 0.08, to: 0.13 },
       duration: 400,
       ease: 'Back.Out'
     });
@@ -329,7 +329,7 @@ function collectGoldenMouse(player, mouse) {
   document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
   this.tweens.add({
     targets: mouse,
-    scale: { from: 0.1, to: 0.15 },
+    scale: { from: 0.08, to: 0.13 },
     alpha: { from: 1, to: 0 },
     duration: 300,
     onComplete: () => mouse.disableBody(true, true)
