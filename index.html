@@ -209,7 +209,7 @@ function create() {
   this.physics.add.overlap(player, obstacles, hitObstacle, null, this);
   
   this.time.addEvent({
-  delay: Phaser.Math.Between(10000, 20000),
+  delay: 900000,
   loop: true,
   callback: () => {
     const x = Phaser.Math.Between(offsetX + 50, offsetX + juegoAncho - 50);
