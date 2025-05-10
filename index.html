@@ -216,11 +216,11 @@ function create() {
     const y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
     //const ratonDorado = this.physics.add.sprite(x, y, 'goldenMouse').setScale(0.08);
 
-    const ratonDorado = this.physics.add.sprite(x, y, 'goldenMouse').setScale(0.08).setAlpha(0);
+    const ratonDorado = this.physics.add.sprite(x, y, 'goldenMouse').setScale(0.1).setAlpha(0);
     this.tweens.add({
       targets: ratonDorado,
       alpha: 1,
-      scale: { from: 0.04, to: 0.08 },
+      scale: { from: 0.1, to: 0.15 },
       duration: 400,
       ease: 'Back.Out'
     });
@@ -276,7 +276,7 @@ function crearComputador(scene) {
   scene.tweens.add({
     targets: comp,
     alpha: 1,
-    scale: { from: 0.4, to: 0.7 },
+    scale: { from: 0.7, to: 1.5 },
     duration: 300,
     ease: 'Back.Out'
   });
@@ -316,7 +316,7 @@ function collectComputer(player, computer) {
   crearComputador(player.scene);
   this.tweens.add({
     targets: computer,
-    scale: { from: 0.7, to: 1.2 },
+    scale: { from: 0.7, to: 1.5 },
     alpha: { from: 1, to: 0 },
     duration: 300,
     onComplete: () => computer.disableBody(true, true)
@@ -329,7 +329,7 @@ function collectGoldenMouse(player, mouse) {
   document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
   this.tweens.add({
     targets: mouse,
-    scale: { from: 0.7, to: 1.2 },
+    scale: { from: 0.1, to: 0.15 },
     alpha: { from: 1, to: 0 },
     duration: 300,
     onComplete: () => mouse.disableBody(true, true)
