@@ -99,8 +99,12 @@
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbyExRMRMOAEu-wOAQ5PsC5gZCkKcMPtNMOH1nCjVRlk2PQ6J16MlqBmF-YSaAjX0J02/exec';
 
-let nombreJugador = prompt('👋 ¡Bienvenido! ¿Cuál es tu nombre?');
-if (!nombreJugador) nombreJugador = 'Jugador';
+let nombreJugador = localStorage.getItem('nombreJugador');
+if (!nombreJugador) {
+  nombreJugador = prompt('👋 ¡Bienvenido! ¿Cuál es tu nombre?');
+  if (!nombreJugador) nombreJugador = 'Jugador';
+  localStorage.setItem('nombreJugador', nombreJugador);
+}
 
 let player, cursors, computers, collected = 0;
 let obstacles;
