@@ -134,13 +134,16 @@ const config = {
 };
 
 function preload() {
+  //imagenes
   this.load.image('student', 'https://labs.phaser.io/assets/sprites/phaser-dude.png');
   this.load.image('computer', 'icons/computer.png');
   this.load.image('tool', 'https://labs.phaser.io/assets/sprites/spikedball.png');
+  this.load.image('goldenMouse', 'icons/raton-dorado.png');
 
   // Sonidos
   this.load.audio('collect', 'https://labs.phaser.io/assets/audio/SoundEffects/p-ping.mp3');
   this.load.audio('hit', 'sounds/metal.mp3');
+
 }
 
 function create() {
@@ -204,6 +207,23 @@ function create() {
   cursors = this.input.keyboard.createCursorKeys();
   this.physics.add.overlap(player, computers, collectComputer, null, this);
   this.physics.add.overlap(player, obstacles, hitObstacle, null, this);
+  
+  this.time.addEvent({
+  delay: Phaser.Math.Between(20000, 30000),
+  loop: true,
+  callback: () => {
+    const x = Phaser.Math.Between(offsetX + 50, offsetX + juegoAncho - 50);
+    const y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
+    const ratonDorado = this.physics.add.sprite(x, y, 'goldenMouse').setScale(0.7);
+
+    // Hace desaparecer el ratón después de 7 segundos si no se recoge
+    this.time.delayedCall(7000, () => {
+      if (ratonDorado.active) ratonDorado.disableBody(true, true);
+    });
+
+    this.physics.add.overlap(player, ratonDorado, collectGoldenMouse, null, this);
+  }
+});
 
   mostrarRankingRemoto();
 
@@ -278,7 +298,12 @@ function collectComputer(player, computer) {
   document.getElementById('contador').textContent = `Computadores: ${collected}`;
   crearComputador(player.scene);
 }
-
+function collectGoldenMouse(player, mouse) {
+  collectSound.play(); // opcional: usar el mismo sonido
+  mouse.disableBody(true, true);
+  vidas++;
+  document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
+}
 function hitObstacle(player, obstacle) {
   obstacle.disableBody(true, true);
   hitSound.play();
