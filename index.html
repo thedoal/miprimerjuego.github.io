@@ -209,12 +209,12 @@ function create() {
   this.physics.add.overlap(player, obstacles, hitObstacle, null, this);
   
   this.time.addEvent({
-  delay: 900000,
+  delay: 15000,
   loop: true,
   callback: () => {
     const x = Phaser.Math.Between(offsetX + 50, offsetX + juegoAncho - 50);
     const y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
-    const ratonDorado = this.physics.add.sprite(x, y, 'goldenMouse').setScale(0.03);
+    const ratonDorado = this.physics.add.sprite(x, y, 'goldenMouse').setScale(0.05);
 
     // Hace desaparecer el ratón después de 7 segundos si no se recoge
     this.time.delayedCall(7000, () => {
