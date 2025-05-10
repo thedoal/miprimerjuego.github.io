@@ -328,11 +328,11 @@ function collectGoldenMouse(player, mouse) {
   vidas++;
   document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
   this.tweens.add({
-    targets: computer,
+    targets: mouse,
     scale: { from: 0.7, to: 1.2 },
     alpha: { from: 1, to: 0 },
     duration: 300,
-    onComplete: () => computer.disableBody(true, true)
+    onComplete: () => mouse.disableBody(true, true)
   });
 }
 function hitObstacle(player, obstacle) {
