@@ -276,7 +276,7 @@ function crearComputador(scene) {
   scene.tweens.add({
     targets: comp,
     alpha: 1,
-    scale: { from: 0.7, to: 1.5 },
+    scale: { from: 0.3, to: 0.7 },
     duration: 300,
     ease: 'Back.Out'
   });
@@ -316,7 +316,7 @@ function collectComputer(player, computer) {
   crearComputador(player.scene);
   this.tweens.add({
     targets: computer,
-    scale: { from: 0.7, to: 1.5 },
+    scale: { from: 0.3, to: 0.7 },
     alpha: { from: 1, to: 0 },
     duration: 300,
     onComplete: () => computer.disableBody(true, true)
