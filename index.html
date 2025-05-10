@@ -214,7 +214,7 @@ function create() {
   callback: () => {
     const x = Phaser.Math.Between(offsetX + 50, offsetX + juegoAncho - 50);
     const y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
-    const ratonDorado = this.physics.add.sprite(x, y, 'goldenMouse').setScale(0.05);
+    const ratonDorado = this.physics.add.sprite(x, y, 'goldenMouse').setScale(0.08);
 
     // Hace desaparecer el ratón después de 7 segundos si no se recoge
     this.time.delayedCall(7000, () => {
