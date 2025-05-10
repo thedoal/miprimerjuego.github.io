@@ -203,33 +203,7 @@ function create() {
   });
 
   player = this.physics.add.sprite(offsetX + 100, offsetY + 100, 'student').setScale(1.5);
-
-
-  this.anims.create({
-    key: 'walk-down',
-    frames: this.anims.generateFrameNumbers('student', { start: 0, end: 3 }),
-    frameRate: 8,
-    repeat: -1
-  });
-  this.anims.create({
-    key: 'walk-left',
-    frames: this.anims.generateFrameNumbers('student', { start: 4, end: 7 }),
-    frameRate: 8,
-    repeat: -1
-  });
-  this.anims.create({
-    key: 'walk-right',
-    frames: this.anims.generateFrameNumbers('student', { start: 8, end: 11 }),
-    frameRate: 8,
-    repeat: -1
-  });
-  this.anims.create({
-    key: 'walk-up',
-    frames: this.anims.generateFrameNumbers('student', { start: 12, end: 15 }),
-    frameRate: 8,
-    repeat: -1
-  });
-
+  
   player.setCollideWorldBounds(true);
   cursors = this.input.keyboard.createCursorKeys();
   this.physics.add.overlap(player, computers, collectComputer, null, this);
@@ -330,17 +304,6 @@ function update() {
 
     if (cursors.up.isDown) velocityY = -velocityScale;
     else if (cursors.down.isDown) velocityY = velocityScale;
-  }
-  if (velocityY < 0) {
-    player.anims.play('walk-up', true);
-  } else if (velocityY > 0) {
-    player.anims.play('walk-down', true);
-  } else if (velocityX < 0) {
-    player.anims.play('walk-left', true);
-  } else if (velocityX > 0) {
-    player.anims.play('walk-right', true);
-  } else {
-    player.anims.stop();
   }
 
   player.setVelocity(velocityX, velocityY);
