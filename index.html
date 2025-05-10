@@ -214,7 +214,16 @@ function create() {
   callback: () => {
     const x = Phaser.Math.Between(offsetX + 50, offsetX + juegoAncho - 50);
     const y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
-    const ratonDorado = this.physics.add.sprite(x, y, 'goldenMouse').setScale(0.08);
+    //const ratonDorado = this.physics.add.sprite(x, y, 'goldenMouse').setScale(0.08);
+
+    const ratonDorado = this.physics.add.sprite(x, y, 'goldenMouse').setScale(0.08).setAlpha(0);
+    this.tweens.add({
+      targets: ratonDorado,
+      alpha: 1,
+      scale: { from: 0.04, to: 0.08 },
+      duration: 400,
+      ease: 'Back.Out'
+    });
 
     // Hace desaparecer el ratón después de 7 segundos si no se recoge
     this.time.delayedCall(7000, () => {
@@ -262,7 +271,15 @@ function crearComputador(scene) {
     Phaser.Math.Distance.Between(x, y, player.x, player.y) < 100 && intentos < 20
   );
 
-  const comp = computers.create(x, y, 'computer').setScale(0.7);
+  //const comp = computers.create(x, y, 'computer').setScale(0.7);
+  const comp = computers.create(x, y, 'computer').setScale(0.7).setAlpha(0);
+  scene.tweens.add({
+    targets: comp,
+    alpha: 1,
+    scale: { from: 0.4, to: 0.7 },
+    duration: 300,
+    ease: 'Back.Out'
+  });
 
   // Si no se recoge en 5 segundos, desaparece y genera otro
   scene.time.delayedCall(5000, () => {
@@ -297,12 +314,26 @@ function collectComputer(player, computer) {
   collected++;
   document.getElementById('contador').textContent = `Computadores: ${collected}`;
   crearComputador(player.scene);
+  this.tweens.add({
+    targets: computer,
+    scale: { from: 0.7, to: 1.2 },
+    alpha: { from: 1, to: 0 },
+    duration: 300,
+    onComplete: () => computer.disableBody(true, true)
+  });
 }
 function collectGoldenMouse(player, mouse) {
   collectSound.play(); // opcional: usar el mismo sonido
   mouse.disableBody(true, true);
   vidas++;
   document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
+  this.tweens.add({
+    targets: computer,
+    scale: { from: 0.7, to: 1.2 },
+    alpha: { from: 1, to: 0 },
+    duration: 300,
+    onComplete: () => computer.disableBody(true, true)
+  });
 }
 function hitObstacle(player, obstacle) {
   obstacle.disableBody(true, true);
