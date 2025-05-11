@@ -326,6 +326,26 @@
         }
       });
     }
+    // 🔁 Actualización constante del juego (movimiento del jugador)
+    function update() {
+      let velocityX = 0, velocityY = 0;
+
+      // 🕹️ Si hay entrada desde el joystick
+      if (joystickVelocity.x !== 0 || joystickVelocity.y !== 0) {
+        velocityX = joystickVelocity.x * velocityScale;
+        velocityY = joystickVelocity.y * velocityScale;
+      } else {
+        // ⌨️ Si hay entrada desde el teclado
+        if (cursors.left.isDown) velocityX = -velocityScale;
+        else if (cursors.right.isDown) velocityX = velocityScale;
+
+        if (cursors.up.isDown) velocityY = -velocityScale;
+        else if (cursors.down.isDown) velocityY = velocityScale;
+      }
+
+      // 🧒 Aplicar velocidad al jugador
+      player.setVelocity(velocityX, velocityY);
+    }
 
     // 🖱️ Recoger computador (suma 1 al contador y anima)
     function collectComputer(player, computer) {
