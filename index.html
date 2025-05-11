@@ -114,6 +114,7 @@ let collectSound, hitSound;
 let vidas = 3;
 let tiempo = 0;
 let cronometro;
+let animacionMovimientoActiva = false;
 
 let juegoAncho, juegoAlto, offsetX, offsetY;
 
@@ -326,21 +327,39 @@ function crearComputador(scene) {
 }
 function update() {
   let velocityX = 0, velocityY = 0;
+  let moviendo = false;
 
-  // Si hay movimiento con joystick, usamos eso
   if (joystickVelocity.x !== 0 || joystickVelocity.y !== 0) {
     velocityX = joystickVelocity.x * velocityScale;
     velocityY = joystickVelocity.y * velocityScale;
+    moviendo = true;
   } else {
-    // Si no, usamos el teclado
-    if (cursors.left.isDown) velocityX = -velocityScale;
-    else if (cursors.right.isDown) velocityX = velocityScale;
+    if (cursors.left.isDown) { velocityX = -velocityScale; moviendo = true; }
+    else if (cursors.right.isDown) { velocityX = velocityScale; moviendo = true; }
 
-    if (cursors.up.isDown) velocityY = -velocityScale;
-    else if (cursors.down.isDown) velocityY = velocityScale;
+    if (cursors.up.isDown) { velocityY = -velocityScale; moviendo = true; }
+    else if (cursors.down.isDown) { velocityY = velocityScale; moviendo = true; }
   }
 
   player.setVelocity(velocityX, velocityY);
+
+  // Animación de rebote al moverse
+  if (moviendo && !animacionMovimientoActiva) {
+    animacionMovimientoActiva = true;
+    player.scene.tweens.add({
+      targets: player,
+      scaleX: player.scaleX * 1.05,
+      scaleY: player.scaleY * 0.95,
+      yoyo: true,
+      repeat: -1,
+      duration: 150,
+      ease: 'Sine.easeInOut'
+    });
+  } else if (!moviendo && animacionMovimientoActiva) {
+    animacionMovimientoActiva = false;
+    player.scene.tweens.killTweensOf(player);
+    player.setScale(window.innerWidth < 900 ? 1.1 : 1.5);
+  }
 }
 
 function collectComputer(player, computer) {
