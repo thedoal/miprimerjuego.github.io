@@ -143,6 +143,7 @@ function preload() {
   this.load.image('computer', 'icons/computer.png');
   this.load.image('tool', 'https://labs.phaser.io/assets/sprites/spikedball.png');
   this.load.image('goldenMouse', 'icons/raton-dorado.png');
+  this.load.image('background', 'icons/1.png');
 
   // Sonidos
   this.load.audio('collect', 'https://labs.phaser.io/assets/audio/SoundEffects/p-ping.mp3');
@@ -176,6 +177,11 @@ function create() {
     offsetY += 15; // Baja el marco solo en móviles
   }
 
+  this.add.image(this.sys.game.config.width / 2, this.sys.game.config.height / 2, 'background')
+    .setOrigin(0.5)
+    .setDisplaySize(this.sys.game.config.width, this.sys.game.config.height)
+    .setDepth(0);
+    
   this.add.rectangle(offsetX, offsetY, juegoAncho, juegoAlto)
     .setOrigin(0)
     .setStrokeStyle(4, 0x000000)
