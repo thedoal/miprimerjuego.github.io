@@ -188,23 +188,23 @@ function create() {
   const escalaFinal = Math.max(escalaX, escalaY); // Escala que cubre toda la pantalla sin deformar
   bg.setScale(escalaFinal);
 
-  // Capa de sombra base (verde oscuro)
+ // Sombra exterior más gruesa y visible (verde oscuro intenso)
   let marco = this.add.graphics();
-  marco.lineStyle(10, 0x2e4e1f, 1); 
-  marco.strokeRect(offsetX - 2, offsetY - 2, juegoAncho + 4, juegoAlto + 4);
+  marco.lineStyle(12, 0x1f3d1a, 1); 
+  marco.strokeRect(offsetX - 3, offsetY - 3, juegoAncho + 6, juegoAlto + 6);
   marco.setDepth(1);
 
-  // Capa de destello animado (verde claro)
+  // Línea brillante más gruesa, tono más claro y vibrante
   let marcoBrillo = this.add.graphics();
-  marcoBrillo.lineStyle(4, 0x9bcd8a, 1);
+  marcoBrillo.lineStyle(6, 0xb2f296, 1); // Verde lima claro
   marcoBrillo.strokeRect(offsetX, offsetY, juegoAncho, juegoAlto);
   marcoBrillo.setDepth(2);
 
-  // Animación de "respiración luminosa"
+  // Tween animado más notorio (más amplitud y opacidad máxima)
   this.tweens.add({
     targets: marcoBrillo,
-    alpha: { from: 0.6, to: 1 },
-    duration: 1200,
+    alpha: { from: 0.4, to: 1 },
+    duration: 1000,
     yoyo: true,
     repeat: -1,
     ease: 'Sine.easeInOut'
