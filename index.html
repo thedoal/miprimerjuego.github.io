@@ -1,29 +1,23 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
   <meta charset="UTF-8">
   <title>Juego con vidas, nombre, ranking y marco</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Librerías externas -->
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.9.0/dist/nipplejs.min.js"></script>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     html, body {
       margin: 0;
       padding: 0;
+      background: #fff;
       overflow: hidden;
       height: 100%;
-      background: #fff;
     }
-
     canvas {
       display: block;
       margin: auto;
     }
-
-    /* 🎮 Zona del joystick */
     #joystick-zone {
       position: fixed;
       bottom: 40px;
@@ -32,8 +26,6 @@
       height: 150px;
       z-index: 1000;
     }
-
-    /* 🧑 HUD con info del jugador */
     #hud {
       position: fixed;
       top: 10px;
@@ -51,16 +43,10 @@
       flex-wrap: wrap;
       justify-content: center;
     }
-
-    /* 🏆 Panel de ranking */
     #ranking {
       position: fixed;
-      top: 60px;
-      right: 10px;
-      width: 200px;
-      max-height: 200px;
-      padding: 10px;
       background: rgba(255, 255, 255, 0.9);
+      padding: 10px;
       border-radius: 10px;
       font-family: sans-serif;
       font-size: 14px;
@@ -69,26 +55,28 @@
       display: flex;
       flex-direction: column;
       overflow-y: auto;
+      max-height: 200px;
       justify-content: flex-start;
+      top: 60px;
+      right: 10px;
+      width: 200px;
     }
-
-    /* 📱 Adaptaciones para pantallas pequeñas */
     @media (max-width: 899px) {
       #joystick-zone {
+        display: block;
         bottom: 20px;
       }
-
       #ranking {
         top: unset;
         bottom: 20px;
         right: 10px;
+        left: unset;
         width: 160px;
         font-size: 13px;
         background: rgba(255, 255, 255, 0.95);
-        box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
         max-height: 120px;
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
       }
-
       #lista-ranking {
         margin: 0;
         padding: 0;
@@ -99,340 +87,316 @@
 </head>
 <body>
 
-  <!-- 🧩 HUD del jugador -->
-  <div id="hud">
-    <div id="jugador">Jugador: </div>
-    <div id="contador">Computadores: 0 / 5</div>
-    <div id="vidas">Vidas: 3</div>
-    <div id="tiempo">Tiempo: 00:00</div>
-  </div>
+<div id="hud">
+  <div id="jugador">Jugador: </div>
+  <div id="contador">Computadores: 0 / 5</div>
+  <div id="vidas">Vidas: 3</div>
+  <div id="tiempo">Tiempo: 00:00</div>
+</div>
+<div id="ranking">Ranking:<br><ul id="lista-ranking"></ul></div>
+<div id="joystick-zone"></div>
 
-  <!-- 🏆 Ranking visible -->
-  <div id="ranking">
-    Ranking:<br>
-    <ul id="lista-ranking"></ul>
-  </div>
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbyExRMRMOAEu-wOAQ5PsC5gZCkKcMPtNMOH1nCjVRlk2PQ6J16MlqBmF-YSaAjX0J02/exec';
 
-  <!-- 🎮 Zona de control táctil -->
-  <div id="joystick-zone"></div>
-  <script>
-    // 🔗 URL del endpoint remoto (Google Apps Script)
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyExRMRMOAEu-wOAQ5PsC5gZCkKcMPtNMOH1nCjVRlk2PQ6J16MlqBmF-YSaAjX0J02/exec';
-  
-    // 👤 Obtener nombre del jugador desde localStorage
-    let nombreJugador = localStorage.getItem('nombreJugador');
-    if (!nombreJugador) {
-      nombreJugador = prompt('👋 ¡Bienvenido! ¿Cuál es tu nombre?');
-      if (!nombreJugador) nombreJugador = 'Jugador';
-      localStorage.setItem('nombreJugador', nombreJugador);
-    }
-  
-    // 📦 Variables globales del juego
-    let player, cursors, computers, collected = 0;
-    let obstacles;
-    let joystickVelocity = { x: 0, y: 0 };
-    let velocityScale = 200;
-    let collectSound, hitSound;
-    let vidas = 3;
-    let tiempo = 0;
-    let cronometro;
-    let juegoAncho, juegoAlto, offsetX, offsetY;
-  
-    // ⚙️ Configuración del juego con Phaser
-    const config = {
-      type: Phaser.AUTO,
-      backgroundColor: '#ffffff',
-      scale: {
-        mode: Phaser.Scale.RESIZE,
-        autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: window.innerWidth,
-        height: window.innerHeight
-      },
-      physics: {
-        default: 'arcade',
-        arcade: {
-          gravity: { y: 0 },
-          debug: false
-        }
-      },
-      scene: {
-        preload,
-        create,
-        update
-      }
-    };
-    // 📥 Precarga de imágenes y sonidos
-    function preload() {
-      // Personaje y objetos
-      this.load.image('student', 'https://labs.phaser.io/assets/sprites/phaser-dude.png');
-      this.load.image('computer', 'icons/computer.png');
-      this.load.image('tool', 'https://labs.phaser.io/assets/sprites/spikedball.png');
-      this.load.image('goldenMouse', 'icons/raton-dorado.png');
-      this.load.image('background', 'icons/1.png');
-  
-      // Sonidos
-      this.load.audio('collect', 'https://labs.phaser.io/assets/audio/SoundEffects/p-ping.mp3');
-      this.load.audio('hit', 'sounds/metal.mp3');
-    }
-  
-    // 🛠️ Crear elementos del juego
-    function create() {
-      // HUD: mostrar el nombre del jugador
-      document.getElementById('jugador').textContent = `Jugador: ${nombreJugador}`;
-  
-      // Sonidos
-      collectSound = this.sound.add('collect');
-      hitSound = this.sound.add('hit');
-      this.input.once('pointerdown', () => this.sound.unlock());
-  
-      // ⏱️ Cronómetro que actualiza el tiempo cada segundo
-      cronometro = setInterval(() => {
-        tiempo++;
-        const min = String(Math.floor(tiempo / 60)).padStart(2, '0');
-        const sec = String(tiempo % 60).padStart(2, '0');
-        document.getElementById('tiempo').textContent = `Tiempo: ${min}:${sec}`;
-      }, 1000);
-  
-      // 📐 Dimensiones del juego y ajustes según si es móvil o no
-      juegoAncho = Math.min(900, this.sys.game.config.width - 40);
-      juegoAlto = this.sys.game.config.width < 900
-        ? Math.min(400, this.sys.game.config.height - 40)
-        : Math.min(600, this.sys.game.config.height - 40);
-      offsetX = (this.sys.game.config.width - juegoAncho) / 2;
-      offsetY = (this.sys.game.config.height - juegoAlto) / 2;
-      if (this.sys.game.config.width < 900) offsetY += 15;
-  
-      // 🖼️ Fondo visual ajustado proporcionalmente
-      const bg = this.add.image(this.sys.game.config.width / 2, this.sys.game.config.height / 2, 'background')
-        .setOrigin(0.5)
-        .setDepth(0);
-      const scaleX = this.sys.game.config.width / bg.width;
-      const scaleY = this.sys.game.config.height / bg.height;
-      bg.setScale(Math.max(scaleX, scaleY));
-  
-      // Marco visible del área de juego
-      this.add.rectangle(offsetX, offsetY, juegoAncho, juegoAlto)
-        .setOrigin(0)
-        .setStrokeStyle(4, 0x000000)
-        .setDepth(1);
-  
-      // Limitar física al área del marco
-      this.physics.world.setBounds(offsetX, offsetY, juegoAncho, juegoAlto);
-  
-      // 🧩 Grupos de elementos
-      computers = this.physics.add.group();
-      obstacles = this.physics.add.group();
-  
-      // ☠️ Obstáculos que caen con el tiempo
-      this.time.addEvent({
-        delay: 1500,
-        loop: true,
-        callback: () => {
-          const cantidad = 1 + Math.floor(tiempo / 10) + Math.floor(collected / 2);
-          for (let i = 0; i < cantidad; i++) {
-            const x = Phaser.Math.Between(offsetX + 20, offsetX + juegoAncho - 20);
-            const tool = obstacles.create(x, offsetY - 20, 'tool').setScale(0.4);
-            tool.setVelocityY(Phaser.Math.Between(300 + tiempo * 2, 450 + tiempo * 2));
-          }
-        }
-      });
-  
-      // 🧍 Crear al jugador
-      player = this.physics.add.sprite(offsetX + 100, offsetY + 100, 'student').setScale(1.5);
-      player.setCollideWorldBounds(true);
-      cursors = this.input.keyboard.createCursorKeys();
-  
-      // 💥 Colisiones entre jugador y elementos
-      this.physics.add.overlap(player, computers, collectComputer, null, this);
-      this.physics.add.overlap(player, obstacles, hitObstacle, null, this);
-  
-      // 🐭 Aparición de ratón dorado (vida extra) cada 15 segundos
-      this.time.addEvent({
-        delay: 15000,
-        loop: true,
-        callback: () => {
-          const x = Phaser.Math.Between(offsetX + 50, offsetX + juegoAncho - 50);
-          const y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
-          const ratonDorado = this.physics.add.sprite(x, y, 'goldenMouse').setScale(0.1).setAlpha(0);
-          this.tweens.add({
-            targets: ratonDorado,
-            alpha: 1,
-            scale: { from: 0.07, to: 0.11 },
-            duration: 400,
-            ease: 'Back.Out'
-          });
-          this.time.delayedCall(7000, () => {
-            if (ratonDorado.active) ratonDorado.disableBody(true, true);
-          });
-          this.physics.add.overlap(player, ratonDorado, collectGoldenMouse, null, this);
-        }
-      });
-  
-      // 🏆 Mostrar ranking inicial
-      mostrarRankingRemoto();
-  
-      // 🕹️ Activar joystick si está en móvil
-      if (window.innerWidth < 900 && !window.joystickCreado) {
-        const joystickZone = document.getElementById('joystick-zone');
-        const joystickManager = nipplejs.create({
-          zone: joystickZone,
-          mode: 'static',
-          color: 'black',
-          position: { left: '50%', top: '50%' },
-          restOpacity: 1
-        });
-        joystickManager.on('move', (evt, data) => {
-          const force = Math.min(data.force, 1);
-          joystickVelocity.x = Math.cos(data.angle.radian) * force;
-          joystickVelocity.y = Math.sin(data.angle.radian) * force * -1;
-        });
-        joystickManager.on('end', () => {
-          joystickVelocity = { x: 0, y: 0 };
-        });
-        window.joystickCreado = true;
-      }
-  
-      // 💻 Primer computador
-      crearComputador(this);
-    }
-    // 💻 Función para crear un computador en posición aleatoria
-    function crearComputador(scene) {
-      if (computers.countActive(true) > 0) return; // Ya hay uno activo
+let nombreJugador = localStorage.getItem('nombreJugador');
+if (!nombreJugador) {
+  nombreJugador = prompt('👋 ¡Bienvenido! ¿Cuál es tu nombre?');
+  if (!nombreJugador) nombreJugador = 'Jugador';
+  localStorage.setItem('nombreJugador', nombreJugador);
+}
 
-      let x, y, intentos = 0;
-      do {
-        x = Phaser.Math.Between(offsetX + 50, offsetX + juegoAncho - 50);
-        y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
-        intentos++;
-      } while (
-        Phaser.Math.Distance.Between(x, y, player.x, player.y) < 100 && intentos < 20
-      );
+let player, cursors, computers, collected = 0;
+let obstacles;
+let joystickVelocity = { x: 0, y: 0 };
+let velocityScale = 200;
+let collectSound, hitSound;
+let vidas = 3;
+let tiempo = 0;
+let cronometro;
 
-      const comp = computers.create(x, y, 'computer').setScale(0.7).setAlpha(0);
+let juegoAncho, juegoAlto, offsetX, offsetY;
 
-      scene.tweens.add({
-        targets: comp,
-        alpha: 1,
-        scale: { from: 0.3, to: 0.7 },
-        duration: 300,
-        ease: 'Back.Out'
-      });
+const config = {
+  type: Phaser.AUTO,
+  backgroundColor: '#ffffff',
+  scale: {
+    mode: Phaser.Scale.RESIZE,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: window.innerWidth,
+    height: window.innerHeight
+  },
+  physics: {
+    default: 'arcade',
+    arcade: { gravity: { y: 0 }, debug: false }
+  },
+  scene: {
+    preload,
+    create,
+    update
+  }
+};
 
-      // Si no se recoge en 5 segundos, desaparece y se crea otro
-      scene.time.delayedCall(5000, () => {
-        if (comp.active) {
-          comp.disableBody(true, true);
-          crearComputador(scene);
-        }
-      });
-    }
-    // 🔁 Actualización constante del juego (movimiento del jugador)
-    function update() {
-      let velocityX = 0, velocityY = 0;
+function preload() {
+  //imagenes
+  this.load.image('student', 'https://labs.phaser.io/assets/sprites/phaser-dude.png');
+  this.load.image('computer', 'icons/computer.png');
+  this.load.image('tool', 'https://labs.phaser.io/assets/sprites/spikedball.png');
+  this.load.image('goldenMouse', 'icons/raton-dorado.png');
+  this.load.image('background', 'icons/1.png');
 
-      // 🕹️ Si hay entrada desde el joystick
-      if (joystickVelocity.x !== 0 || joystickVelocity.y !== 0) {
-        velocityX = joystickVelocity.x * velocityScale;
-        velocityY = joystickVelocity.y * velocityScale;
-      } else {
-        // ⌨️ Si hay entrada desde el teclado
-        if (cursors.left.isDown) velocityX = -velocityScale;
-        else if (cursors.right.isDown) velocityX = velocityScale;
+  // Sonidos
+  this.load.audio('collect', 'https://labs.phaser.io/assets/audio/SoundEffects/p-ping.mp3');
+  this.load.audio('hit', 'sounds/metal.mp3');
 
-        if (cursors.up.isDown) velocityY = -velocityScale;
-        else if (cursors.down.isDown) velocityY = velocityScale;
-      }
+}
 
-      // 🧒 Aplicar velocidad al jugador
-      player.setVelocity(velocityX, velocityY);
-    }
+function create() {
+  document.getElementById('jugador').textContent = `Jugador: ${nombreJugador}`;
+  collectSound = this.sound.add('collect');
+  hitSound = this.sound.add('hit');
+  this.input.once('pointerdown', () => this.sound.unlock());
+  cronometro = setInterval(() => {
+    tiempo++;
+    let min = String(Math.floor(tiempo / 60)).padStart(2, '0');
+    let sec = String(tiempo % 60).padStart(2, '0');
+    document.getElementById('tiempo').textContent = `Tiempo: ${min}:${sec}`;
+  }, 1000);
 
-    // 🖱️ Recoger computador (suma 1 al contador y anima)
-    function collectComputer(player, computer) {
-      collectSound.play();
-      collected++;
-      document.getElementById('contador').textContent = `Computadores: ${collected}`;
+  juegoAncho = Math.min(900, this.sys.game.config.width - 40);
 
-      this.tweens.add({
-        targets: computer,
-        scale: { from: 0.3, to: 0.7 },
-        alpha: { from: 1, to: 0 },
-        duration: 300,
-        onComplete: () => {
-          computer.disableBody(true, true);
-          crearComputador(player.scene);
-        }
-      });
-    }
+  // Si el ancho es menor a 900px (móvil), limitamos el alto
+  if (this.sys.game.config.width < 900) {
+    juegoAlto = Math.min(400, this.sys.game.config.height - 40); // más bajo en móvil
+  } else {
+    juegoAlto = Math.min(600, this.sys.game.config.height - 40);
+  }
+  offsetX = (this.sys.game.config.width - juegoAncho) / 2;
+  offsetY = (this.sys.game.config.height - juegoAlto) / 2;
+  if (this.sys.game.config.width < 900) {
+    offsetY += 15; // Baja el marco solo en móviles
+  }
 
-    // 🐭 Recoger ratón dorado (da una vida extra)
-    function collectGoldenMouse(player, mouse) {
-      collectSound.play();
-      vidas++;
-      document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
+  const bg = this.add.image(this.sys.game.config.width / 2, this.sys.game.config.height / 2, 'background')
+    .setOrigin(0.5)
+    .setDepth(0);
 
-      this.tweens.add({
-        targets: mouse,
-        scale: { from: 0.07, to: 0.11 },
-        alpha: { from: 1, to: 0 },
-        duration: 300,
-        onComplete: () => mouse.disableBody(true, true)
-      });
-    }
+  // Escalado proporcional para que se vea completo y no se deforme
+  const escalaX = this.sys.game.config.width / bg.width;
+  const escalaY = this.sys.game.config.height / bg.height;
+  const escalaFinal = Math.max(escalaX, escalaY); // Escala que cubre toda la pantalla sin deformar
+  bg.setScale(escalaFinal);
 
-    // ⚠️ Golpeado por obstáculo (pierde una vida)
-    function hitObstacle(player, obstacle) {
-      obstacle.disableBody(true, true);
-      hitSound.play();
-      vidas--;
-      document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
+  this.add.rectangle(offsetX, offsetY, juegoAncho, juegoAlto)
+    .setOrigin(0)
+    .setStrokeStyle(4, 0x000000)
+    .setDepth(1);
 
-      if (vidas <= 0) {
-        clearInterval(cronometro);
-        const tiempoTexto = document.getElementById('tiempo').textContent.replace('Tiempo: ', '');
-        guardarEnRankingRemoto(nombreJugador, tiempoTexto);
+  this.physics.world.setBounds(offsetX, offsetY, juegoAncho, juegoAlto);
 
-        setTimeout(() => {
-          alert('💥 ¡Te golpearon demasiadas veces!\n\nFin del juego.');
-          window.location.reload();
-        }, 300);
+  computers = this.physics.add.group();
+
+  obstacles = this.physics.add.group();
+  this.time.addEvent({
+    delay: 1500,
+    loop: true,
+    callback: () => {
+      const cantidadObstaculos = 1 + Math.floor(tiempo / 10) + Math.floor(collected / 2); // escala con tiempo y computadores
+
+      for (let i = 0; i < cantidadObstaculos; i++) {
+        const x = Phaser.Math.Between(offsetX + 20, offsetX + juegoAncho - 20);
+        const tool = obstacles.create(x, offsetY - 20, 'tool').setScale(0.4);
+        tool.setVelocityY(Phaser.Math.Between(300 + tiempo * 2, 450 + tiempo * 2));
       }
     }
-    // 💾 Enviar puntaje al servidor (Apps Script)
-    function guardarEnRankingRemoto(nombre, tiempo) {
-      fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify({
-          nombre,
-          tiempo,
-          computadores: collected
-        })
-      })
-      .then(response => response.text())
-      .then(data => {
-        console.log("✅ Servidor respondió:", data);
-      })
-      .catch(error => {
-        console.error("❌ Error al enviar datos al servidor:", error);
+  });
+
+  player = this.physics.add.sprite(offsetX + 100, offsetY + 100, 'student').setScale(1.5);
+  
+  player.setCollideWorldBounds(true);
+  cursors = this.input.keyboard.createCursorKeys();
+  this.physics.add.overlap(player, computers, collectComputer, null, this);
+  this.physics.add.overlap(player, obstacles, hitObstacle, null, this);
+  
+  this.time.addEvent({
+  delay: 15000,
+  loop: true,
+  callback: () => {
+    const x = Phaser.Math.Between(offsetX + 50, offsetX + juegoAncho - 50);
+    const y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
+    //const ratonDorado = this.physics.add.sprite(x, y, 'goldenMouse').setScale(0.08);
+
+    const ratonDorado = this.physics.add.sprite(x, y, 'goldenMouse').setScale(0.1).setAlpha(0);
+    this.tweens.add({
+      targets: ratonDorado,
+      alpha: 1,
+      scale: { from: 0.07, to: 0.11 },
+      duration: 400,
+      ease: 'Back.Out'
+    });
+
+    // Hace desaparecer el ratón después de 7 segundos si no se recoge
+    this.time.delayedCall(7000, () => {
+      if (ratonDorado.active) ratonDorado.disableBody(true, true);
+    });
+
+    this.physics.add.overlap(player, ratonDorado, collectGoldenMouse, null, this);
+  }
+});
+
+  mostrarRankingRemoto();
+
+  if (window.innerWidth < 900 && !window.joystickCreado) {
+    const joystickZone = document.getElementById('joystick-zone');
+    const joystickManager = nipplejs.create({
+      zone: joystickZone,
+      mode: 'static',
+      color: 'black',
+      position: { left: '50%', top: '50%' },
+      restOpacity: 1
+    });
+
+    joystickManager.on('move', (evt, data) => {
+      const force = Math.min(data.force, 1);
+      joystickVelocity.x = Math.cos(data.angle.radian) * force;
+      joystickVelocity.y = Math.sin(data.angle.radian) * force * -1;
+    });
+
+    joystickManager.on('end', () => {
+      joystickVelocity = { x: 0, y: 0 };
+    });
+
+    window.joystickCreado = true; // para no volver a crearlo
+  }
+  crearComputador(this);
+}
+function crearComputador(scene) {
+  if (computers.countActive(true) > 0) return; // ya hay uno
+
+  let x, y, intentos = 0;
+  do {
+    x = Phaser.Math.Between(offsetX + 50, offsetX + juegoAncho - 50);
+    y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
+    intentos++;
+  } while (
+    Phaser.Math.Distance.Between(x, y, player.x, player.y) < 100 && intentos < 20
+  );
+
+  //const comp = computers.create(x, y, 'computer').setScale(0.7);
+  const comp = computers.create(x, y, 'computer').setScale(0.7).setAlpha(0);
+  scene.tweens.add({
+    targets: comp,
+    alpha: 1,
+    scale: { from: 0.3, to: 0.7 },
+    duration: 300,
+    ease: 'Back.Out'
+  });
+
+  // Si no se recoge en 5 segundos, desaparece y genera otro
+  scene.time.delayedCall(5000, () => {
+    if (comp.active) {
+      comp.disableBody(true, true);
+      crearComputador(scene);
+    }
+  });
+}
+function update() {
+  let velocityX = 0, velocityY = 0;
+
+  // Si hay movimiento con joystick, usamos eso
+  if (joystickVelocity.x !== 0 || joystickVelocity.y !== 0) {
+    velocityX = joystickVelocity.x * velocityScale;
+    velocityY = joystickVelocity.y * velocityScale;
+  } else {
+    // Si no, usamos el teclado
+    if (cursors.left.isDown) velocityX = -velocityScale;
+    else if (cursors.right.isDown) velocityX = velocityScale;
+
+    if (cursors.up.isDown) velocityY = -velocityScale;
+    else if (cursors.down.isDown) velocityY = velocityScale;
+  }
+
+  player.setVelocity(velocityX, velocityY);
+}
+
+function collectComputer(player, computer) {
+  collectSound.play();
+  computer.disableBody(true, true);
+  collected++;
+  document.getElementById('contador').textContent = `Computadores: ${collected}`;
+  crearComputador(player.scene);
+  this.tweens.add({
+    targets: computer,
+    scale: { from: 0.3, to: 0.7 },
+    alpha: { from: 1, to: 0 },
+    duration: 300,
+    onComplete: () => computer.disableBody(true, true)
+  });
+}
+function collectGoldenMouse(player, mouse) {
+  collectSound.play(); // opcional: usar el mismo sonido
+  mouse.disableBody(true, true);
+  vidas++;
+  document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
+  this.tweens.add({
+    targets: mouse,
+    scale: { from: 0.07, to: 0.11 },
+    alpha: { from: 1, to: 0 },
+    duration: 300,
+    onComplete: () => mouse.disableBody(true, true)
+  });
+}
+function hitObstacle(player, obstacle) {
+  obstacle.disableBody(true, true);
+  hitSound.play();
+  vidas--;
+  document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
+  if (vidas <= 0) {
+    clearInterval(cronometro);
+    const tiempoTexto = document.getElementById('tiempo').textContent.replace('Tiempo: ', '');
+    guardarEnRankingRemoto(nombreJugador, tiempoTexto); // ✅ Guarda cuando pierde
+
+    setTimeout(() => {
+      alert('💥 ¡Te golpearon demasiadas veces!\n\nFin del juego.');
+      window.location.reload();
+    }, 300);
+  }
+}
+
+function guardarEnRankingRemoto(nombre, tiempo) {
+  fetch(API_URL, {
+    method: 'POST',
+    //headers: { 'Content-Type': 'application/json' }, // ✅ MUY IMPORTANTE
+    body: JSON.stringify({
+      nombre,
+      tiempo,
+      computadores: collected
+    })
+  })
+  .then(response => response.text())
+  .then(data => {
+    console.log("Respuesta del servidor:", data); // ✅ Esto mostrará "OK"
+  })
+  .catch(error => {
+    console.error("Error al enviar al ranking remoto:", error); // ✅ Aquí verás cualquier error
+  });
+}
+
+function mostrarRankingRemoto() {
+  fetch(API_URL)
+    .then(res => res.json())
+    .then(data => {
+      const lista = document.getElementById('lista-ranking');
+      lista.innerHTML = '';
+      data.slice(0, 5).forEach((fila, i) => {
+        const li = document.createElement('li');
+        li.textContent = `${i + 1}. ${fila[0]} - ${fila[1]} - Comp: ${fila[2]}`;
+        lista.appendChild(li);
       });
-    }
+    });
+}
 
-    // 🏆 Obtener y mostrar el ranking desde Google Sheets
-    function mostrarRankingRemoto() {
-      fetch(API_URL)
-        .then(res => res.json())
-        .then(data => {
-          const lista = document.getElementById('lista-ranking');
-          lista.innerHTML = '';
-
-          data.slice(0, 5).forEach((fila, i) => {
-            const li = document.createElement('li');
-            li.textContent = `${i + 1}. ${fila[0]} - ${fila[1]} - Comp: ${fila[2]}`;
-            lista.appendChild(li);
-          });
-        })
-        .catch(error => {
-          console.error("❌ Error al obtener el ranking:", error);
-        });
-    }
-  </script>
+new Phaser.Game(config);
+</script>
+</body>
+</html>
