@@ -188,14 +188,27 @@ function create() {
   const escalaFinal = Math.max(escalaX, escalaY); // Escala que cubre toda la pantalla sin deformar
   bg.setScale(escalaFinal);
 
+  // Capa de sombra base (verde oscuro)
   let marco = this.add.graphics();
-  marco.lineStyle(10, 0x2e4e1f, 1); // línea base gruesa (verde oscuro tipo bosque)
+  marco.lineStyle(10, 0x2e4e1f, 1); 
   marco.strokeRect(offsetX - 2, offsetY - 2, juegoAncho + 4, juegoAlto + 4);
-
-  marco.lineStyle(4, 0x9bcd8a, 1); // línea superior más clara (tipo hoja viva)
-  marco.strokeRect(offsetX, offsetY, juegoAncho, juegoAlto);
-
   marco.setDepth(1);
+
+  // Capa de destello animado (verde claro)
+  let marcoBrillo = this.add.graphics();
+  marcoBrillo.lineStyle(4, 0x9bcd8a, 1);
+  marcoBrillo.strokeRect(offsetX, offsetY, juegoAncho, juegoAlto);
+  marcoBrillo.setDepth(2);
+
+  // Animación de "respiración luminosa"
+  this.tweens.add({
+    targets: marcoBrillo,
+    alpha: { from: 0.6, to: 1 },
+    duration: 1200,
+    yoyo: true,
+    repeat: -1,
+    ease: 'Sine.easeInOut'
+  });
 
   this.physics.world.setBounds(offsetX, offsetY, juegoAncho, juegoAlto);
 
