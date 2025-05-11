@@ -4,8 +4,11 @@
   <meta charset="UTF-8">
   <title>Juego con vidas, nombre, ranking y marco</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Librerías externas -->
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.9.0/dist/nipplejs.min.js"></script>
+
   <style>
     html, body {
       margin: 0;
@@ -20,6 +23,7 @@
       margin: auto;
     }
 
+    /* 🎮 Zona del joystick */
     #joystick-zone {
       position: fixed;
       bottom: 40px;
@@ -29,6 +33,7 @@
       z-index: 1000;
     }
 
+    /* 🧑 HUD con info del jugador */
     #hud {
       position: fixed;
       top: 10px;
@@ -47,6 +52,7 @@
       justify-content: center;
     }
 
+    /* 🏆 Panel de ranking */
     #ranking {
       position: fixed;
       top: 60px;
@@ -66,14 +72,16 @@
       justify-content: flex-start;
     }
 
+    /* 📱 Adaptaciones para pantallas pequeñas */
     @media (max-width: 899px) {
       #joystick-zone {
         bottom: 20px;
       }
 
       #ranking {
-        bottom: 20px;
         top: unset;
+        bottom: 20px;
+        right: 10px;
         width: 160px;
         font-size: 13px;
         background: rgba(255, 255, 255, 0.95);
@@ -91,6 +99,7 @@
 </head>
 <body>
 
+  <!-- 🧩 HUD del jugador -->
   <div id="hud">
     <div id="jugador">Jugador: </div>
     <div id="contador">Computadores: 0 / 5</div>
@@ -98,25 +107,27 @@
     <div id="tiempo">Tiempo: 00:00</div>
   </div>
 
+  <!-- 🏆 Ranking visible -->
   <div id="ranking">
     Ranking:<br>
     <ul id="lista-ranking"></ul>
   </div>
 
+  <!-- 🎮 Zona de control táctil -->
   <div id="joystick-zone"></div>
-
   <script>
-    // 🔗 URL del servidor (Google Apps Script)
+    // 🔗 URL del endpoint remoto (Google Apps Script)
     const API_URL = 'https://script.google.com/macros/s/AKfycbyExRMRMOAEu-wOAQ5PsC5gZCkKcMPtNMOH1nCjVRlk2PQ6J16MlqBmF-YSaAjX0J02/exec';
-
-    // 👤 Nombre del jugador (guardado en localStorage)
+  
+    // 👤 Obtener nombre del jugador desde localStorage
     let nombreJugador = localStorage.getItem('nombreJugador');
     if (!nombreJugador) {
-      nombreJugador = prompt('👋 ¡Bienvenido! ¿Cuál es tu nombre?') || 'Jugador';
+      nombreJugador = prompt('👋 ¡Bienvenido! ¿Cuál es tu nombre?');
+      if (!nombreJugador) nombreJugador = 'Jugador';
       localStorage.setItem('nombreJugador', nombreJugador);
     }
-
-    // 📦 Variables globales de juego
+  
+    // 📦 Variables globales del juego
     let player, cursors, computers, collected = 0;
     let obstacles;
     let joystickVelocity = { x: 0, y: 0 };
@@ -126,8 +137,8 @@
     let tiempo = 0;
     let cronometro;
     let juegoAncho, juegoAlto, offsetX, offsetY;
-
-    // 🧩 Configuración base de Phaser
+  
+    // ⚙️ Configuración del juego con Phaser
     const config = {
       type: Phaser.AUTO,
       backgroundColor: '#ffffff',
@@ -139,7 +150,10 @@
       },
       physics: {
         default: 'arcade',
-        arcade: { gravity: { y: 0 }, debug: false }
+        arcade: {
+          gravity: { y: 0 },
+          debug: false
+        }
       },
       scene: {
         preload,
@@ -147,40 +161,39 @@
         update
       }
     };
-
-    // 📥 Precarga de recursos
+    // 📥 Precarga de imágenes y sonidos
     function preload() {
-      // Personaje y objetos del juego
+      // Personaje y objetos
       this.load.image('student', 'https://labs.phaser.io/assets/sprites/phaser-dude.png');
       this.load.image('computer', 'icons/computer.png');
       this.load.image('tool', 'https://labs.phaser.io/assets/sprites/spikedball.png');
       this.load.image('goldenMouse', 'icons/raton-dorado.png');
-
-      // Fondo decorativo
       this.load.image('background', 'icons/1.png');
-
-      // Efectos de sonido
+  
+      // Sonidos
       this.load.audio('collect', 'https://labs.phaser.io/assets/audio/SoundEffects/p-ping.mp3');
       this.load.audio('hit', 'sounds/metal.mp3');
     }
+  
+    // 🛠️ Crear elementos del juego
     function create() {
-      // 🧑 Mostrar nombre del jugador en el HUD
+      // HUD: mostrar el nombre del jugador
       document.getElementById('jugador').textContent = `Jugador: ${nombreJugador}`;
-
-      // 🔊 Inicializar sonidos
+  
+      // Sonidos
       collectSound = this.sound.add('collect');
       hitSound = this.sound.add('hit');
       this.input.once('pointerdown', () => this.sound.unlock());
-
-      // ⏱️ Iniciar cronómetro de tiempo jugado
+  
+      // ⏱️ Cronómetro que actualiza el tiempo cada segundo
       cronometro = setInterval(() => {
         tiempo++;
         const min = String(Math.floor(tiempo / 60)).padStart(2, '0');
         const sec = String(tiempo % 60).padStart(2, '0');
         document.getElementById('tiempo').textContent = `Tiempo: ${min}:${sec}`;
       }, 1000);
-
-      // 📐 Definir dimensiones del área de juego
+  
+      // 📐 Dimensiones del juego y ajustes según si es móvil o no
       juegoAncho = Math.min(900, this.sys.game.config.width - 40);
       juegoAlto = this.sys.game.config.width < 900
         ? Math.min(400, this.sys.game.config.height - 40)
@@ -188,27 +201,29 @@
       offsetX = (this.sys.game.config.width - juegoAncho) / 2;
       offsetY = (this.sys.game.config.height - juegoAlto) / 2;
       if (this.sys.game.config.width < 900) offsetY += 15;
-
-      // 🌄 Fondo decorativo adaptado a tamaño
+  
+      // 🖼️ Fondo visual ajustado proporcionalmente
       const bg = this.add.image(this.sys.game.config.width / 2, this.sys.game.config.height / 2, 'background')
         .setOrigin(0.5)
         .setDepth(0);
       const scaleX = this.sys.game.config.width / bg.width;
       const scaleY = this.sys.game.config.height / bg.height;
       bg.setScale(Math.max(scaleX, scaleY));
-
-      // 🟦 Marco del juego
+  
+      // Marco visible del área de juego
       this.add.rectangle(offsetX, offsetY, juegoAncho, juegoAlto)
         .setOrigin(0)
         .setStrokeStyle(4, 0x000000)
         .setDepth(1);
+  
+      // Limitar física al área del marco
       this.physics.world.setBounds(offsetX, offsetY, juegoAncho, juegoAlto);
-
-      // 🎮 Crear grupos
+  
+      // 🧩 Grupos de elementos
       computers = this.physics.add.group();
       obstacles = this.physics.add.group();
-
-      // ☠️ Obstáculos que caen periódicamente
+  
+      // ☠️ Obstáculos que caen con el tiempo
       this.time.addEvent({
         delay: 1500,
         loop: true,
@@ -221,17 +236,17 @@
           }
         }
       });
-
-      // 🧒 Crear jugador
+  
+      // 🧍 Crear al jugador
       player = this.physics.add.sprite(offsetX + 100, offsetY + 100, 'student').setScale(1.5);
       player.setCollideWorldBounds(true);
       cursors = this.input.keyboard.createCursorKeys();
-
-      // 🎯 Colisiones
+  
+      // 💥 Colisiones entre jugador y elementos
       this.physics.add.overlap(player, computers, collectComputer, null, this);
       this.physics.add.overlap(player, obstacles, hitObstacle, null, this);
-
-      // 🐭 Raton dorado que aparece cada 15 segundos
+  
+      // 🐭 Aparición de ratón dorado (vida extra) cada 15 segundos
       this.time.addEvent({
         delay: 15000,
         loop: true,
@@ -252,11 +267,11 @@
           this.physics.add.overlap(player, ratonDorado, collectGoldenMouse, null, this);
         }
       });
-
-      // 📈 Mostrar ranking actual
+  
+      // 🏆 Mostrar ranking inicial
       mostrarRankingRemoto();
-
-      // 🕹️ Configurar joystick táctil en móviles
+  
+      // 🕹️ Activar joystick si está en móvil
       if (window.innerWidth < 900 && !window.joystickCreado) {
         const joystickZone = document.getElementById('joystick-zone');
         const joystickManager = nipplejs.create({
@@ -276,13 +291,13 @@
         });
         window.joystickCreado = true;
       }
-
-      // 💻 Iniciar primer computador
+  
+      // 💻 Primer computador
       crearComputador(this);
     }
-    // 💻 Crear computador en posición aleatoria y animado
+    // 💻 Función para crear un computador en posición aleatoria
     function crearComputador(scene) {
-      if (computers.countActive(true) > 0) return; // Solo uno activo a la vez
+      if (computers.countActive(true) > 0) return; // Ya hay uno activo
 
       let x, y, intentos = 0;
       do {
@@ -294,6 +309,7 @@
       );
 
       const comp = computers.create(x, y, 'computer').setScale(0.7).setAlpha(0);
+
       scene.tweens.add({
         targets: comp,
         alpha: 1,
@@ -302,7 +318,7 @@
         ease: 'Back.Out'
       });
 
-      // Si no se recoge, desaparece y aparece uno nuevo
+      // Si no se recoge en 5 segundos, desaparece y se crea otro
       scene.time.delayedCall(5000, () => {
         if (comp.active) {
           comp.disableBody(true, true);
@@ -311,24 +327,7 @@
       });
     }
 
-    // 🕹️ Movimiento del jugador
-    function update() {
-      let velocityX = 0, velocityY = 0;
-
-      if (joystickVelocity.x !== 0 || joystickVelocity.y !== 0) {
-        velocityX = joystickVelocity.x * velocityScale;
-        velocityY = joystickVelocity.y * velocityScale;
-      } else {
-        if (cursors.left.isDown) velocityX = -velocityScale;
-        else if (cursors.right.isDown) velocityX = velocityScale;
-        if (cursors.up.isDown) velocityY = -velocityScale;
-        else if (cursors.down.isDown) velocityY = velocityScale;
-      }
-
-      player.setVelocity(velocityX, velocityY);
-    }
-
-    // 🖱️ Recoger computador
+    // 🖱️ Recoger computador (suma 1 al contador y anima)
     function collectComputer(player, computer) {
       collectSound.play();
       collected++;
@@ -336,16 +335,17 @@
 
       this.tweens.add({
         targets: computer,
-        scale: { from: 0.7, to: 1.1 },
+        scale: { from: 0.3, to: 0.7 },
         alpha: { from: 1, to: 0 },
         duration: 300,
-        onComplete: () => computer.disableBody(true, true)
+        onComplete: () => {
+          computer.disableBody(true, true);
+          crearComputador(player.scene);
+        }
       });
-
-      crearComputador(player.scene);
     }
 
-    // 🐭 Recoger ratón dorado (vida extra)
+    // 🐭 Recoger ratón dorado (da una vida extra)
     function collectGoldenMouse(player, mouse) {
       collectSound.play();
       vidas++;
@@ -353,14 +353,14 @@
 
       this.tweens.add({
         targets: mouse,
-        scale: { from: 0.1, to: 0.14 },
+        scale: { from: 0.07, to: 0.11 },
         alpha: { from: 1, to: 0 },
         duration: 300,
         onComplete: () => mouse.disableBody(true, true)
       });
     }
 
-    // ⚠️ Golpeado por obstáculo
+    // ⚠️ Golpeado por obstáculo (pierde una vida)
     function hitObstacle(player, obstacle) {
       obstacle.disableBody(true, true);
       hitSound.play();
@@ -378,33 +378,41 @@
         }, 300);
       }
     }
-
-    // 💾 Guardar puntuación al ranking remoto
+    // 💾 Enviar puntaje al servidor (Apps Script)
     function guardarEnRankingRemoto(nombre, tiempo) {
       fetch(API_URL, {
         method: 'POST',
-        body: JSON.stringify({ nombre, tiempo, computadores: collected })
+        body: JSON.stringify({
+          nombre,
+          tiempo,
+          computadores: collected
+        })
       })
-      .then(res => res.text())
-      .then(data => console.log("Servidor:", data))
-      .catch(error => console.error("Error al guardar ranking:", error));
+      .then(response => response.text())
+      .then(data => {
+        console.log("✅ Servidor respondió:", data);
+      })
+      .catch(error => {
+        console.error("❌ Error al enviar datos al servidor:", error);
+      });
     }
 
-    // 🏆 Mostrar ranking desde Google Sheets
+    // 🏆 Obtener y mostrar el ranking desde Google Sheets
     function mostrarRankingRemoto() {
       fetch(API_URL)
         .then(res => res.json())
         .then(data => {
           const lista = document.getElementById('lista-ranking');
           lista.innerHTML = '';
+
           data.slice(0, 5).forEach((fila, i) => {
             const li = document.createElement('li');
             li.textContent = `${i + 1}. ${fila[0]} - ${fila[1]} - Comp: ${fila[2]}`;
             lista.appendChild(li);
           });
+        })
+        .catch(error => {
+          console.error("❌ Error al obtener el ranking:", error);
         });
     }
   </script>
-
-</body>
-</html>
