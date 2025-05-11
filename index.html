@@ -114,6 +114,20 @@
 //URL del servicio remoto de ranking
 const API_URL = 'https://script.google.com/macros/s/AKfycbyExRMRMOAEu-wOAQ5PsC5gZCkKcMPtNMOH1nCjVRlk2PQ6J16MlqBmF-YSaAjX0J02/exec';
 
+// Verifica si ya se mostró la historia en esta sesión
+const historiaYaVista = localStorage.getItem('historiaVista');
+
+if (historiaYaVista) {
+  // Si ya se vio la historia, oculta la intro y pide el nombre directamente
+  document.getElementById('intro').style.display = 'none';
+
+  nombreJugador = localStorage.getItem('nombreJugador') || 'Agente Desconocido';
+  localStorage.setItem('nombreJugador', nombreJugador);
+
+  // Inicia el juego automáticamente
+  new Phaser.Game(config);
+}
+
 //Variables globales del juego (jugador, elementos, estado, etc.)
 let nombreJugador = localStorage.getItem('nombreJugador');
 if (!nombreJugador) {
@@ -297,10 +311,13 @@ function update() {
   }
 }
 document.getElementById('iniciarJuego').addEventListener('click', () => {
+  // Marca que la historia ya fue vista
+  localStorage.setItem('historiaVista', 'true');
+
   // Oculta la pantalla de introducción
   document.getElementById('intro').style.display = 'none';
 
-  // Pide el nombre del jugador
+  // Pide el nombre del jugador si aún no se ha ingresado
   let nombreJugadorGuardado = localStorage.getItem('nombreJugador');
   if (!nombreJugadorGuardado) {
     nombreJugador = prompt('¿Cuál es tu nombre de agente rescatista?');
@@ -313,7 +330,6 @@ document.getElementById('iniciarJuego').addEventListener('click', () => {
   // Inicia el juego
   new Phaser.Game(config);
 });
-new Phaser.Game(config);
 </script>
 </body>
 </html>
