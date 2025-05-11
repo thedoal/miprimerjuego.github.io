@@ -95,6 +95,19 @@
 </div>
 <div id="ranking">Ranking:<br><ul id="lista-ranking"></ul></div>
 <div id="joystick-zone"></div>
+<!-- Pantalla de introducción -->
+<div id="intro" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:2000; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px; font-family:sans-serif;">
+  <h1 style="font-size:28px; color:#2b2b2b;">¡Misión Computador!</h1>
+  <p style="max-width:600px; font-size:18px; color:#444;">
+    Hace unos años, muchas salas de clases perdieron sus computadores. Algunos quedaron escondidos, otros fueron robados por criaturas metálicas llamadas <strong>"Chatarra Bots"</strong>.<br><br>
+    Nuestra misión: <strong>recuperar la mayor cantidad de computadores y ratones posibles antes de que el tiempo se acabe</strong>.<br><br>
+    Cada niño y niña con su credencial podrá escanear su código QR para entrar a esta simulación especial. <br><br>
+    ¿Estás listo para ayudar a salvar la educación digital?
+  </p>
+  <button id="iniciarJuego" style="margin-top:20px; padding:12px 24px; font-size:18px; background:#4CAF50; color:white; border:none; border-radius:8px; cursor:pointer;">
+    Comenzar misión
+  </button>
+</div>
 
 <script src="funciones.js"></script>
 <script>
@@ -283,7 +296,23 @@ function update() {
     player.setScale(window.innerWidth < 900 ? 1.1 : 1.5); // Restaurar escala según dispositivo
   }
 }
+document.getElementById('iniciarJuego').addEventListener('click', () => {
+  // Oculta la pantalla de introducción
+  document.getElementById('intro').style.display = 'none';
 
+  // Pide el nombre del jugador
+  let nombreJugadorGuardado = localStorage.getItem('nombreJugador');
+  if (!nombreJugadorGuardado) {
+    nombreJugador = prompt('¿Cuál es tu nombre de agente rescatista?');
+    if (!nombreJugador) nombreJugador = 'Agente Desconocido';
+    localStorage.setItem('nombreJugador', nombreJugador);
+  } else {
+    nombreJugador = nombreJugadorGuardado;
+  }
+
+  // Inicia el juego
+  new Phaser.Game(config);
+});
 new Phaser.Game(config);
 </script>
 </body>
