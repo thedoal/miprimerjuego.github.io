@@ -189,13 +189,20 @@ function create() {
   const escalaFinal = Math.max(escalaX, escalaY); // Escala que cubre toda la pantalla sin deformar
   bg.setScale(escalaFinal);
 
-  const marcoDecorado = this.add.image(this.sys.game.config.width / 2, this.sys.game.config.height / 2, 'marcoBosque').setDepth(1);
+  const marcoDecorado = this.add.image(
+    this.sys.game.config.width / 2,
+    this.sys.game.config.height / 2,
+    'marcoBosque'
+  ).setDepth(1);
 
-  // Escalado que cubre el marco del juego sin deformarse
-  const scaleX = this.sys.game.config.width / marcoDecorado.width;
-  const scaleY = this.sys.game.config.height / marcoDecorado.height;
+  // Escalado para cubrir el área jugable y superponerse como marco
+  const scaleX = juegoAncho / marcoDecorado.width;
+  const scaleY = juegoAlto / marcoDecorado.height;
   const finalScale = Math.max(scaleX, scaleY);
   marcoDecorado.setScale(finalScale);
+
+  // Ajustamos para que esté centrado exactamente en el área jugable
+  marcoDecorado.setPosition(offsetX + juegoAncho / 2, offsetY + juegoAlto / 2);
 
   this.physics.world.setBounds(offsetX, offsetY, juegoAncho, juegoAlto);
 
