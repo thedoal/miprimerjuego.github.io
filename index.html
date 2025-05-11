@@ -144,7 +144,6 @@ function preload() {
   this.load.image('tool', 'https://labs.phaser.io/assets/sprites/spikedball.png');
   this.load.image('goldenMouse', 'icons/raton-dorado.png');
   this.load.image('background', 'icons/1.png');
-  this.load.image('marcoBosque', 'icons/marco-bosque.jpg');
 
   // Sonidos
   this.load.audio('collect', 'https://labs.phaser.io/assets/audio/SoundEffects/p-ping.mp3');
@@ -189,20 +188,10 @@ function create() {
   const escalaFinal = Math.max(escalaX, escalaY); // Escala que cubre toda la pantalla sin deformar
   bg.setScale(escalaFinal);
 
-  const marcoDecorado = this.add.image(
-    this.sys.game.config.width / 2,
-    this.sys.game.config.height / 2,
-    'marcoBosque'
-  ).setDepth(1);
-
-  // Escalado para cubrir el área jugable y superponerse como marco
-  const scaleX = juegoAncho / marcoDecorado.width;
-  const scaleY = juegoAlto / marcoDecorado.height;
-  const finalScale = Math.max(scaleX, scaleY);
-  marcoDecorado.setScale(finalScale);
-
-  // Ajustamos para que esté centrado exactamente en el área jugable
-  marcoDecorado.setPosition(offsetX + juegoAncho / 2, offsetY + juegoAlto / 2);
+  this.add.rectangle(offsetX, offsetY, juegoAncho, juegoAlto)
+    .setOrigin(0)
+    .setStrokeStyle(4, 0x000000)
+    .setDepth(1);
 
   this.physics.world.setBounds(offsetX, offsetY, juegoAncho, juegoAlto);
 
