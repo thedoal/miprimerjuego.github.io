@@ -177,11 +177,16 @@ function create() {
     offsetY += 15; // Baja el marco solo en móviles
   }
 
-  this.add.image(this.sys.game.config.width / 2, this.sys.game.config.height / 2, 'background')
+  const bg = this.add.image(this.sys.game.config.width / 2, this.sys.game.config.height / 2, 'background')
     .setOrigin(0.5)
-    .setDisplaySize(this.sys.game.config.width, this.sys.game.config.height)
     .setDepth(0);
-    
+
+  // Escalado proporcional para que se vea completo y no se deforme
+  const escalaX = this.sys.game.config.width / bg.width;
+  const escalaY = this.sys.game.config.height / bg.height;
+  const escalaFinal = Math.max(escalaX, escalaY); // Escala que cubre toda la pantalla sin deformar
+  bg.setScale(escalaFinal);
+  
   this.add.rectangle(offsetX, offsetY, juegoAncho, juegoAlto)
     .setOrigin(0)
     .setStrokeStyle(4, 0x000000)
