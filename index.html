@@ -115,31 +115,7 @@
 const API_URL = 'https://script.google.com/macros/s/AKfycbyExRMRMOAEu-wOAQ5PsC5gZCkKcMPtNMOH1nCjVRlk2PQ6J16MlqBmF-YSaAjX0J02/exec';
 
 let game; // Variable global para reiniciar Phaser si es necesario
-
-window.addEventListener('DOMContentLoaded', () => {
-  const intro = document.getElementById('intro');
-  const botonInicio = document.getElementById('iniciarJuego');
-
-  let historiaYaVista = localStorage.getItem('historiaVista');
-  let nombreJugador = localStorage.getItem('nombreJugador');
-
-  if (historiaYaVista && nombreJugador) {
-    intro.style.display = 'none';
-    iniciarJuego(); // inicia Phaser directo
-  }
-
-  botonInicio.addEventListener('click', () => {
-    localStorage.setItem('historiaVista', 'true');
-    intro.style.display = 'none';
-
-    if (!nombreJugador) {
-      nombreJugador = prompt('¿Cuál es tu nombre de agente rescatista?') || 'Agente Desconocido';
-      localStorage.setItem('nombreJugador', nombreJugador);
-    }
-
-    iniciarJuego(); // inicia Phaser después de intro
-  });
-});
+let nombreJugador = null;
 
 //Variables globales del juego (jugador, elementos, estado, etc.)
 let player, cursors, computers, collected = 0;
@@ -153,6 +129,37 @@ let cronometro;
 let animacionMovimientoActiva = false;
 
 let juegoAncho, juegoAlto, offsetX, offsetY;
+
+// Espera a que todo el contenido del DOM se haya cargado completamente
+window.addEventListener('DOMContentLoaded', () => {
+  // Referencia al contenedor de la introducción (pantalla de historia)
+  const intro = document.getElementById('intro');
+  // Referencia al botón que inicia el juego
+  const botonInicio = document.getElementById('iniciarJuego');
+  // Verifica si ya se mostró la historia anteriormente
+  let historiaYaVista = localStorage.getItem('historiaVista');
+  // Obtiene el nombre del jugador desde localStorage, si existe
+  nombreJugador = localStorage.getItem('nombreJugador');
+  // Si ya se vio la historia y se tiene el nombre del jugador, se inicia el juego directamente
+  if (historiaYaVista && nombreJugador) {
+    intro.style.display = 'none'; // Oculta la pantalla de introducción
+    iniciarJuego(); // Lanza el juego automáticamente
+  }
+  // Evento al hacer clic en el botón de "Comenzar misión"
+  botonInicio.addEventListener('click', () => {
+    // Marca que ya se ha visto la historia
+    localStorage.setItem('historiaVista', 'true');
+    // Oculta la pantalla de introducción
+    intro.style.display = 'none';
+    // Si no se ha definido un nombre previamente, se solicita al jugador
+    if (!nombreJugador) {
+      nombreJugador = prompt('¿Cuál es tu nombre de agente rescatista?') || 'Agente Desconocido';
+      localStorage.setItem('nombreJugador', nombreJugador); // Se guarda el nombre ingresado
+    }
+    // Inicia el juego después de cerrar la introducción
+    iniciarJuego();
+  });
+});
 
 //Configuración principal de Phaser (tamaño, física, escena, etc.)
 const config = {
