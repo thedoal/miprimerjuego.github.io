@@ -97,15 +97,16 @@
 <div id="joystick-zone"></div>
 
 <script>
+//URL del servicio remoto de ranking
 const API_URL = 'https://script.google.com/macros/s/AKfycbyExRMRMOAEu-wOAQ5PsC5gZCkKcMPtNMOH1nCjVRlk2PQ6J16MlqBmF-YSaAjX0J02/exec';
 
+//Variables globales del juego (jugador, elementos, estado, etc.)
 let nombreJugador = localStorage.getItem('nombreJugador');
 if (!nombreJugador) {
   nombreJugador = prompt('👋 ¡Bienvenido! ¿Cuál es tu nombre?');
   if (!nombreJugador) nombreJugador = 'Jugador';
   localStorage.setItem('nombreJugador', nombreJugador);
 }
-
 let player, cursors, computers, collected = 0;
 let obstacles;
 let joystickVelocity = { x: 0, y: 0 };
@@ -118,6 +119,7 @@ let animacionMovimientoActiva = false;
 
 let juegoAncho, juegoAlto, offsetX, offsetY;
 
+//Configuración principal de Phaser (tamaño, física, escena, etc.)
 const config = {
   type: Phaser.AUTO,
   backgroundColor: '#ffffff',
@@ -137,7 +139,7 @@ const config = {
     update
   }
 };
-
+//Precarga de imágenes y sonidos antes de comenzar el juego
 function preload() {
   //imagenes
   this.load.image('student', 'https://labs.phaser.io/assets/sprites/phaser-dude.png');
@@ -152,7 +154,7 @@ function preload() {
   this.load.audio('bgMusic', 'sounds/sonidofondo.mp3');
 
 }
-
+//Configura el entorno de juego al iniciar (fondo, jugador, música, HUD, etc.)
 function create() {
   document.getElementById('jugador').textContent = `Jugador: ${nombreJugador}`;
   collectSound = this.sound.add('collect');
@@ -195,6 +197,7 @@ function create() {
   const music = this.sound.add('bgMusic', { loop: true, volume: 0.3 });
   music.play();
 }
+//Inicia el contador de tiempo del juego
 function iniciarCronometro() {
   cronometro = setInterval(() => {
     tiempo++;
@@ -203,6 +206,7 @@ function iniciarCronometro() {
     document.getElementById('tiempo').textContent = `Tiempo: ${min}:${sec}`;
   }, 1000);
 }
+//Genera un computador dentro del área de juego
 function crearComputador(scene) {
   if (computers.countActive(true) > 0) return; // ya hay uno
 
@@ -234,6 +238,7 @@ function crearComputador(scene) {
     }
   });
 }
+//Dibuja el marco animado alrededor del área de juego
 function crearMarcoDecorativo(scene) {
   let marco = scene.add.graphics();
   marco.lineStyle(12, 0x1f3d1a, 1);
@@ -254,6 +259,7 @@ function crearMarcoDecorativo(scene) {
     ease: 'Sine.easeInOut'
   });
 }
+//Genera obstáculos que caen desde arriba
 function crearObstaculos(scene) {
   scene.time.addEvent({
     delay: 1500,
@@ -269,6 +275,7 @@ function crearObstaculos(scene) {
     }
   });
 }
+//Crea y anima un ratón dorado que otorga una vida
 function crearRatonDorado(scene) {
   scene.time.addEvent({
     delay: 15000,
@@ -295,6 +302,7 @@ function crearRatonDorado(scene) {
     }
   });
 }
+//Crea un joystick virtual para móviles con pantalla chica
 function crearJoystickMovil() {
   if (window.innerWidth >= 900 || window.joystickCreado) return;
 
@@ -319,6 +327,7 @@ function crearJoystickMovil() {
 
   window.joystickCreado = true;
 }
+//Movimiento del jugador y animación por frame
 function update() {
   let velocityX = 0, velocityY = 0;
   let moviendo = false;
@@ -355,6 +364,7 @@ function update() {
     player.setScale(window.innerWidth < 900 ? 1.1 : 1.5);
   }
 }
+//Guarda al recolectar un computador
 function collectComputer(player, computer) {
   collectSound.play();
   computer.disableBody(true, true);
@@ -369,6 +379,7 @@ function collectComputer(player, computer) {
     onComplete: () => computer.disableBody(true, true)
   });
 }
+//Guarda al recolectar un ratón dorado
 function collectGoldenMouse(player, mouse) {
   collectSound.play(); // opcional: usar el mismo sonido
   mouse.disableBody(true, true);
@@ -382,6 +393,7 @@ function collectGoldenMouse(player, mouse) {
     onComplete: () => mouse.disableBody(true, true)
   });
 }
+//Guarda al ser golpeado por un obstáculo
 function hitObstacle(player, obstacle) {
   obstacle.disableBody(true, true);
   hitSound.play();
@@ -398,6 +410,7 @@ function hitObstacle(player, obstacle) {
     }, 300);
   }
 }
+//Enviar datos del jugador al ranking
 function guardarEnRankingRemoto(nombre, tiempo) {
   fetch(API_URL, {
     method: 'POST',
@@ -416,6 +429,7 @@ function guardarEnRankingRemoto(nombre, tiempo) {
     console.error("Error al enviar al ranking remoto:", error); // ✅ Aquí verás cualquier error
   });
 }
+//Obtener y mostrar el ranking actualizado
 function mostrarRankingRemoto() {
   fetch(API_URL)
     .then(res => res.json())
