@@ -1,3 +1,10 @@
+//Funcion para iniciar el juego
+function iniciarJuego() {
+	if (window.game) {
+	  window.game.destroy(true);
+	}
+	window.game = new Phaser.Game(config);
+  }
 //Inicia el contador de tiempo del juego
 function iniciarCronometro() {
 	// Inicia un temporizador que se ejecuta cada 1 segundo (1000 ms)

@@ -118,31 +118,26 @@ let game; // Variable global para reiniciar Phaser si es necesario
 
 window.addEventListener('DOMContentLoaded', () => {
   const intro = document.getElementById('intro');
+  const botonInicio = document.getElementById('iniciarJuego');
+
+  let historiaYaVista = localStorage.getItem('historiaVista');
   let nombreJugador = localStorage.getItem('nombreJugador');
-  const historiaYaVista = localStorage.getItem('historiaVista');
 
-  if (historiaYaVista) {
+  if (historiaYaVista && nombreJugador) {
     intro.style.display = 'none';
-
-    if (!nombreJugador) {
-      nombreJugador = prompt('¿Cuál es tu nombre de agente rescatista?') || 'Agente Desconocido';
-      localStorage.setItem('nombreJugador', nombreJugador);
-    }
-
-    game = new Phaser.Game(config);
+    iniciarJuego(); // inicia Phaser directo
   }
 
-  // Botón para iniciar desde la pantalla de historia
-  document.getElementById('btn-iniciar').addEventListener('click', () => {
-    intro.style.display = 'none';
+  botonInicio.addEventListener('click', () => {
     localStorage.setItem('historiaVista', 'true');
+    intro.style.display = 'none';
 
     if (!nombreJugador) {
       nombreJugador = prompt('¿Cuál es tu nombre de agente rescatista?') || 'Agente Desconocido';
       localStorage.setItem('nombreJugador', nombreJugador);
     }
 
-    game = new Phaser.Game(config);
+    iniciarJuego(); // inicia Phaser después de intro
   });
 });
 
@@ -340,8 +335,9 @@ document.getElementById('iniciarJuego').addEventListener('click', () => {
   }
 
   // Inicia el juego
-  new Phaser.Game(config);
+  iniciarJuego(); 
 });
+
 </script>
 </body>
 </html>
