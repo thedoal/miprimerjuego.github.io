@@ -158,141 +158,51 @@ function create() {
   collectSound = this.sound.add('collect');
   hitSound = this.sound.add('hit');
   this.input.once('pointerdown', () => this.sound.unlock());
+
+  iniciarCronometro();
+
+  juegoAncho = Math.min(900, this.sys.game.config.width - 40);
+
+  juegoAncho = Math.min(900, this.sys.game.config.width - 40);
+  juegoAlto = this.sys.game.config.width < 900 ? Math.min(400, this.sys.game.config.height - 40) : Math.min(600, this.sys.game.config.height - 40);
+  offsetX = (this.sys.game.config.width - juegoAncho) / 2;
+  offsetY = (this.sys.game.config.height - juegoAlto) / 2;
+  if (this.sys.game.config.width < 900) offsetY += 15;
+
+  const bg = this.add.image(this.sys.game.config.width / 2, this.sys.game.config.height / 2, 'background').setOrigin(0.5).setDepth(0);
+  bg.setScale(Math.max(this.sys.game.config.width / bg.width, this.sys.game.config.height / bg.height));
+
+  crearMarcoDecorativo(this);
+
+  this.physics.world.setBounds(offsetX, offsetY, juegoAncho, juegoAlto);
+  computers = this.physics.add.group();
+  obstacles = this.physics.add.group();
+
+  generarObstaculos(this);
+
+  const escalaJugador = window.innerWidth < 900 ? 1.1 : 1.5;
+  player = this.physics.add.sprite(offsetX + 100, offsetY + 100, 'student').setScale(escalaJugador);
+  player.setCollideWorldBounds(true);
+
+  cursors = this.input.keyboard.createCursorKeys();
+  this.physics.add.overlap(player, computers, collectComputer, null, this);
+  this.physics.add.overlap(player, obstacles, hitObstacle, null, this);
+  
+  crearRatonDorado(this);
+  mostrarRankingRemoto();
+  crearJoystickMovil();
+  crearComputador(this);
+
+  const music = this.sound.add('bgMusic', { loop: true, volume: 0.3 });
+  music.play();
+}
+function iniciarCronometro() {
   cronometro = setInterval(() => {
     tiempo++;
     let min = String(Math.floor(tiempo / 60)).padStart(2, '0');
     let sec = String(tiempo % 60).padStart(2, '0');
     document.getElementById('tiempo').textContent = `Tiempo: ${min}:${sec}`;
   }, 1000);
-
-  juegoAncho = Math.min(900, this.sys.game.config.width - 40);
-
-  // Si el ancho es menor a 900px (móvil), limitamos el alto
-  if (this.sys.game.config.width < 900) {
-    juegoAlto = Math.min(400, this.sys.game.config.height - 40); // más bajo en móvil
-  } else {
-    juegoAlto = Math.min(600, this.sys.game.config.height - 40);
-  }
-  offsetX = (this.sys.game.config.width - juegoAncho) / 2;
-  offsetY = (this.sys.game.config.height - juegoAlto) / 2;
-  if (this.sys.game.config.width < 900) {
-    offsetY += 15; // Baja el marco solo en móviles
-  }
-
-  const bg = this.add.image(this.sys.game.config.width / 2, this.sys.game.config.height / 2, 'background')
-    .setOrigin(0.5)
-    .setDepth(0);
-
-  // Escalado proporcional para que se vea completo y no se deforme
-  const escalaX = this.sys.game.config.width / bg.width;
-  const escalaY = this.sys.game.config.height / bg.height;
-  const escalaFinal = Math.max(escalaX, escalaY); // Escala que cubre toda la pantalla sin deformar
-  bg.setScale(escalaFinal);
-
- // Sombra exterior más gruesa y visible (verde oscuro intenso)
-  let marco = this.add.graphics();
-  marco.lineStyle(12, 0x1f3d1a, 1); 
-  marco.strokeRect(offsetX - 3, offsetY - 3, juegoAncho + 6, juegoAlto + 6);
-  marco.setDepth(1);
-
-  // Línea brillante más gruesa, tono más claro y vibrante
-  let marcoBrillo = this.add.graphics();
-  marcoBrillo.lineStyle(6, 0xb2f296, 1); // Verde lima claro
-  marcoBrillo.strokeRect(offsetX, offsetY, juegoAncho, juegoAlto);
-  marcoBrillo.setDepth(2);
-
-  // Tween animado más notorio (más amplitud y opacidad máxima)
-  this.tweens.add({
-    targets: marcoBrillo,
-    alpha: { from: 0.4, to: 1 },
-    duration: 1000,
-    yoyo: true,
-    repeat: -1,
-    ease: 'Sine.easeInOut'
-  });
-
-  this.physics.world.setBounds(offsetX, offsetY, juegoAncho, juegoAlto);
-
-  computers = this.physics.add.group();
-
-  obstacles = this.physics.add.group();
-  this.time.addEvent({
-    delay: 1500,
-    loop: true,
-    callback: () => {
-      const cantidadObstaculos = 1 + Math.floor(tiempo / 10) + Math.floor(collected / 2); // escala con tiempo y computadores
-
-      for (let i = 0; i < cantidadObstaculos; i++) {
-        const x = Phaser.Math.Between(offsetX + 20, offsetX + juegoAncho - 20);
-        const escalaObstaculo = window.innerWidth < 900 ? 0.25 : 0.4;
-        const tool = obstacles.create(x, offsetY - 20, 'tool').setScale(escalaObstaculo);
-        tool.setVelocityY(Phaser.Math.Between(300 + tiempo * 2, 450 + tiempo * 2));
-      }
-    }
-  });
-
-  const escalaJugador = window.innerWidth < 900 ? 1.1 : 1.5;
-  player = this.physics.add.sprite(offsetX + 100, offsetY + 100, 'student').setScale(escalaJugador);
-  
-  player.setCollideWorldBounds(true);
-  cursors = this.input.keyboard.createCursorKeys();
-  this.physics.add.overlap(player, computers, collectComputer, null, this);
-  this.physics.add.overlap(player, obstacles, hitObstacle, null, this);
-  
-  this.time.addEvent({
-  delay: 15000,
-  loop: true,
-  callback: () => {
-    const x = Phaser.Math.Between(offsetX + 50, offsetX + juegoAncho - 50);
-    const y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
-    //const ratonDorado = this.physics.add.sprite(x, y, 'goldenMouse').setScale(0.08);
-
-    const escalaRaton = window.innerWidth < 900 ? 0.07 : 0.1;
-    const ratonDorado = this.physics.add.sprite(x, y, 'goldenMouse').setScale(escalaRaton).setAlpha(0); 
-    this.tweens.add({
-      targets: ratonDorado,
-      alpha: 1,
-      scale: { from: 0.07, to: 0.11 },
-      duration: 400,
-      ease: 'Back.Out'
-    });
-
-    // Hace desaparecer el ratón después de 7 segundos si no se recoge
-    this.time.delayedCall(7000, () => {
-      if (ratonDorado.active) ratonDorado.disableBody(true, true);
-    });
-
-    this.physics.add.overlap(player, ratonDorado, collectGoldenMouse, null, this);
-  }
-});
-
-  mostrarRankingRemoto();
-
-  if (window.innerWidth < 900 && !window.joystickCreado) {
-    const joystickZone = document.getElementById('joystick-zone');
-    const joystickManager = nipplejs.create({
-      zone: joystickZone,
-      mode: 'static',
-      color: 'black',
-      position: { left: '50%', top: '50%' },
-      restOpacity: 1
-    });
-
-    joystickManager.on('move', (evt, data) => {
-      const force = Math.min(data.force, 1);
-      joystickVelocity.x = Math.cos(data.angle.radian) * force;
-      joystickVelocity.y = Math.sin(data.angle.radian) * force * -1;
-    });
-
-    joystickManager.on('end', () => {
-      joystickVelocity = { x: 0, y: 0 };
-    });
-
-    window.joystickCreado = true; // para no volver a crearlo
-  }
-  crearComputador(this);
-  const music = this.sound.add('bgMusic', { loop: true, volume: 0.3 });
-  music.play();
 }
 function crearComputador(scene) {
   if (computers.countActive(true) > 0) return; // ya hay uno
@@ -324,6 +234,91 @@ function crearComputador(scene) {
       crearComputador(scene);
     }
   });
+}
+function crearMarcoDecorativo(scene) {
+  let marco = scene.add.graphics();
+  marco.lineStyle(12, 0x1f3d1a, 1);
+  marco.strokeRect(offsetX - 3, offsetY - 3, juegoAncho + 6, juegoAlto + 6);
+  marco.setDepth(1);
+
+  let marcoBrillo = scene.add.graphics();
+  marcoBrillo.lineStyle(6, 0xb2f296, 1);
+  marcoBrillo.strokeRect(offsetX, offsetY, juegoAncho, juegoAlto);
+  marcoBrillo.setDepth(2);
+
+  scene.tweens.add({
+    targets: marcoBrillo,
+    alpha: { from: 0.4, to: 1 },
+    duration: 1000,
+    yoyo: true,
+    repeat: -1,
+    ease: 'Sine.easeInOut'
+  });
+}
+function crearObstaculos(scene) {
+  scene.time.addEvent({
+    delay: 1500,
+    loop: true,
+    callback: () => {
+      const cantidad = 1 + Math.floor(tiempo / 10) + Math.floor(collected / 2);
+      for (let i = 0; i < cantidad; i++) {
+        const x = Phaser.Math.Between(offsetX + 20, offsetX + juegoAncho - 20);
+        const escala = window.innerWidth < 900 ? 0.25 : 0.4;
+        const tool = obstacles.create(x, offsetY - 20, 'tool').setScale(escala);
+        tool.setVelocityY(Phaser.Math.Between(300 + tiempo * 2, 450 + tiempo * 2));
+      }
+    }
+  });
+}
+function crearRatonDorado(scene) {
+  scene.time.addEvent({
+    delay: 15000,
+    loop: true,
+    callback: () => {
+      const x = Phaser.Math.Between(offsetX + 50, offsetX + juegoAncho - 50);
+      const y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
+      const escala = window.innerWidth < 900 ? 0.07 : 0.1;
+
+      const raton = scene.physics.add.sprite(x, y, 'goldenMouse').setScale(escala).setAlpha(0);
+      scene.tweens.add({
+        targets: raton,
+        alpha: 1,
+        scale: { from: 0.07, to: 0.11 },
+        duration: 400,
+        ease: 'Back.Out'
+      });
+
+      scene.time.delayedCall(7000, () => {
+        if (raton.active) raton.disableBody(true, true);
+      });
+
+      scene.physics.add.overlap(player, raton, collectGoldenMouse, null, scene);
+    }
+  });
+}
+function crearJoystickMovil() {
+  if (window.innerWidth >= 900 || window.joystickCreado) return;
+
+  const joystickZone = document.getElementById('joystick-zone');
+  const joystickManager = nipplejs.create({
+    zone: joystickZone,
+    mode: 'static',
+    color: 'black',
+    position: { left: '50%', top: '50%' },
+    restOpacity: 1
+  });
+
+  joystickManager.on('move', (evt, data) => {
+    const force = Math.min(data.force, 1);
+    joystickVelocity.x = Math.cos(data.angle.radian) * force;
+    joystickVelocity.y = Math.sin(data.angle.radian) * force * -1;
+  });
+
+  joystickManager.on('end', () => {
+    joystickVelocity = { x: 0, y: 0 };
+  });
+
+  window.joystickCreado = true;
 }
 function update() {
   let velocityX = 0, velocityY = 0;
@@ -361,7 +356,6 @@ function update() {
     player.setScale(window.innerWidth < 900 ? 1.1 : 1.5);
   }
 }
-
 function collectComputer(player, computer) {
   collectSound.play();
   computer.disableBody(true, true);
@@ -405,7 +399,6 @@ function hitObstacle(player, obstacle) {
     }, 300);
   }
 }
-
 function guardarEnRankingRemoto(nombre, tiempo) {
   fetch(API_URL, {
     method: 'POST',
@@ -424,7 +417,6 @@ function guardarEnRankingRemoto(nombre, tiempo) {
     console.error("Error al enviar al ranking remoto:", error); // ✅ Aquí verás cualquier error
   });
 }
-
 function mostrarRankingRemoto() {
   fetch(API_URL)
     .then(res => res.json())
