@@ -163,7 +163,6 @@ function create() {
 
   juegoAncho = Math.min(900, this.sys.game.config.width - 40);
 
-  juegoAncho = Math.min(900, this.sys.game.config.width - 40);
   juegoAlto = this.sys.game.config.width < 900 ? Math.min(400, this.sys.game.config.height - 40) : Math.min(600, this.sys.game.config.height - 40);
   offsetX = (this.sys.game.config.width - juegoAncho) / 2;
   offsetY = (this.sys.game.config.height - juegoAlto) / 2;
@@ -178,7 +177,7 @@ function create() {
   computers = this.physics.add.group();
   obstacles = this.physics.add.group();
 
-  generarObstaculos(this);
+  crearObstaculos(this);
 
   const escalaJugador = window.innerWidth < 900 ? 1.1 : 1.5;
   player = this.physics.add.sprite(offsetX + 100, offsetY + 100, 'student').setScale(escalaJugador);
