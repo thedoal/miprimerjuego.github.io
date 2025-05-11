@@ -211,7 +211,8 @@ function create() {
     }
   });
 
-  player = this.physics.add.sprite(offsetX + 100, offsetY + 100, 'student').setScale(1.5);
+  const escalaJugador = window.innerWidth < 900 ? 1.1 : 1.5;
+  player = this.physics.add.sprite(offsetX + 100, offsetY + 100, 'student').setScale(escalaJugador);
   
   player.setCollideWorldBounds(true);
   cursors = this.input.keyboard.createCursorKeys();
@@ -226,7 +227,8 @@ function create() {
     const y = Phaser.Math.Between(offsetY + 50, offsetY + juegoAlto - 50);
     //const ratonDorado = this.physics.add.sprite(x, y, 'goldenMouse').setScale(0.08);
 
-    const ratonDorado = this.physics.add.sprite(x, y, 'goldenMouse').setScale(0.1).setAlpha(0);
+    const escalaRaton = window.innerWidth < 900 ? 0.07 : 0.1;
+    const ratonDorado = this.physics.add.sprite(x, y, 'goldenMouse').setScale(escalaRaton).setAlpha(0); 
     this.tweens.add({
       targets: ratonDorado,
       alpha: 1,
@@ -283,7 +285,8 @@ function crearComputador(scene) {
   );
 
   //const comp = computers.create(x, y, 'computer').setScale(0.7);
-  const comp = computers.create(x, y, 'computer').setScale(0.7).setAlpha(0);
+  const escalaComp = window.innerWidth < 900 ? 0.5 : 0.7;
+  const comp = computers.create(x, y, 'computer').setScale(escalaComp).setAlpha(0);
   scene.tweens.add({
     targets: comp,
     alpha: 1,
