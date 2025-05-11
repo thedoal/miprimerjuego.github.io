@@ -186,7 +186,7 @@ function create() {
   const escalaY = this.sys.game.config.height / bg.height;
   const escalaFinal = Math.max(escalaX, escalaY); // Escala que cubre toda la pantalla sin deformar
   bg.setScale(escalaFinal);
-  
+
   this.add.rectangle(offsetX, offsetY, juegoAncho, juegoAlto)
     .setOrigin(0)
     .setStrokeStyle(4, 0x000000)
@@ -257,6 +257,7 @@ function create() {
     const joystickManager = nipplejs.create({
       zone: joystickZone,
       mode: 'static',
+      color: 'black',
       position: { left: '50%', top: '50%' },
       color: 'blue'
     });
