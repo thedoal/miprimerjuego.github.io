@@ -115,7 +115,7 @@ let vidas = 3;
 let tiempo = 0;
 let cronometro;
 let animacionMovimientoActiva = false;
-let emitter;
+
 let juegoAncho, juegoAlto, offsetX, offsetY;
 
 const config = {
@@ -145,7 +145,6 @@ function preload() {
   this.load.image('tool', 'https://labs.phaser.io/assets/sprites/spikedball.png');
   this.load.image('goldenMouse', 'icons/raton-dorado.png');
   this.load.image('background', 'icons/1.png');
-  this.load.image('estrella', 'https://labs.phaser.io/assets/particles/yellow.png');
 
   // Sonidos
   this.load.audio('collect', 'https://labs.phaser.io/assets/audio/SoundEffects/p-ping.mp3');
@@ -158,22 +157,6 @@ function create() {
   document.getElementById('jugador').textContent = `Jugador: ${nombreJugador}`;
   collectSound = this.sound.add('collect');
   hitSound = this.sound.add('hit');
-
-  const particles = this.add.particles(0, 0, 'flares', {
-    frame: 'yellow',
-    lifespan: 500,
-    speed: { min: 100, max: 200 },
-    angle: { min: 0, max: 360 },
-    gravityY: 200,
-    scale: { start: 0.4, end: 0 },
-    alpha: { start: 1, end: 0 },
-    quantity: 12,
-    blendMode: 'ADD',
-    emitting: false
-  });
-
-this.particles = particles;
-
   this.input.once('pointerdown', () => this.sound.unlock());
   cronometro = setInterval(() => {
     tiempo++;
@@ -255,7 +238,7 @@ this.particles = particles;
   cursors = this.input.keyboard.createCursorKeys();
   this.physics.add.overlap(player, computers, collectComputer, null, this);
   this.physics.add.overlap(player, obstacles, hitObstacle, null, this);
-
+  
   this.time.addEvent({
   delay: 15000,
   loop: true,
@@ -384,7 +367,6 @@ function collectComputer(player, computer) {
   computer.disableBody(true, true);
   collected++;
   document.getElementById('contador').textContent = `Computadores: ${collected}`;
-  this.particles.emitParticleAt(player.x, player.y);
   crearComputador(player.scene);
   this.tweens.add({
     targets: computer,
@@ -399,7 +381,6 @@ function collectGoldenMouse(player, mouse) {
   mouse.disableBody(true, true);
   vidas++;
   document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
-  this.particles.emitParticleAt(player.x, player.y);
   this.tweens.add({
     targets: mouse,
     scale: { from: 0.07, to: 0.11 },
