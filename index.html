@@ -159,16 +159,20 @@ function create() {
   collectSound = this.sound.add('collect');
   hitSound = this.sound.add('hit');
 
-  let particleManager = this.add.particles('estrella');
-  emitter = particleManager.createEmitter({
-    speed: { min: -100, max: 100 },
+  const particles = this.add.particles(0, 0, 'flares', {
+    frame: 'yellow',
+    lifespan: 500,
+    speed: { min: 100, max: 200 },
     angle: { min: 0, max: 360 },
+    gravityY: 200,
     scale: { start: 0.4, end: 0 },
     alpha: { start: 1, end: 0 },
-    lifespan: 600,
-    quantity: 15,
-    on: false // Para que explote solo cuando se indique
+    quantity: 12,
+    blendMode: 'ADD',
+    emitting: false
   });
+
+this.particles = particles;
 
   this.input.once('pointerdown', () => this.sound.unlock());
   cronometro = setInterval(() => {
@@ -380,8 +384,7 @@ function collectComputer(player, computer) {
   computer.disableBody(true, true);
   collected++;
   document.getElementById('contador').textContent = `Computadores: ${collected}`;
-  emitter.setPosition(player.x, player.y);
-  emitter.explode();
+  this.particles.emitParticleAt(player.x, player.y);
   crearComputador(player.scene);
   this.tweens.add({
     targets: computer,
@@ -396,8 +399,7 @@ function collectGoldenMouse(player, mouse) {
   mouse.disableBody(true, true);
   vidas++;
   document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
-  emitter.setPosition(player.x, player.y);
-  emitter.explode();
+  this.particles.emitParticleAt(player.x, player.y);
   this.tweens.add({
     targets: mouse,
     scale: { from: 0.07, to: 0.11 },
