@@ -114,27 +114,39 @@
 //URL del servicio remoto de ranking
 const API_URL = 'https://script.google.com/macros/s/AKfycbyExRMRMOAEu-wOAQ5PsC5gZCkKcMPtNMOH1nCjVRlk2PQ6J16MlqBmF-YSaAjX0J02/exec';
 
-// Verifica si ya se mostró la historia en esta sesión
-const historiaYaVista = localStorage.getItem('historiaVista');
+let game; // Variable global para reiniciar Phaser si es necesario
 
-if (historiaYaVista) {
-  // Si ya se vio la historia, oculta la intro y pide el nombre directamente
-  document.getElementById('intro').style.display = 'none';
+window.addEventListener('DOMContentLoaded', () => {
+  const intro = document.getElementById('intro');
+  let nombreJugador = localStorage.getItem('nombreJugador');
+  const historiaYaVista = localStorage.getItem('historiaVista');
 
-  nombreJugador = localStorage.getItem('nombreJugador') || 'Agente Desconocido';
-  localStorage.setItem('nombreJugador', nombreJugador);
+  if (historiaYaVista) {
+    intro.style.display = 'none';
 
-  // Inicia el juego automáticamente
-  new Phaser.Game(config);
-}
+    if (!nombreJugador) {
+      nombreJugador = prompt('¿Cuál es tu nombre de agente rescatista?') || 'Agente Desconocido';
+      localStorage.setItem('nombreJugador', nombreJugador);
+    }
+
+    game = new Phaser.Game(config);
+  }
+
+  // Botón para iniciar desde la pantalla de historia
+  document.getElementById('btn-iniciar').addEventListener('click', () => {
+    intro.style.display = 'none';
+    localStorage.setItem('historiaVista', 'true');
+
+    if (!nombreJugador) {
+      nombreJugador = prompt('¿Cuál es tu nombre de agente rescatista?') || 'Agente Desconocido';
+      localStorage.setItem('nombreJugador', nombreJugador);
+    }
+
+    game = new Phaser.Game(config);
+  });
+});
 
 //Variables globales del juego (jugador, elementos, estado, etc.)
-let nombreJugador = localStorage.getItem('nombreJugador');
-if (!nombreJugador) {
-  nombreJugador = prompt('👋 ¡Bienvenido! ¿Cuál es tu nombre?');
-  if (!nombreJugador) nombreJugador = 'Jugador';
-  localStorage.setItem('nombreJugador', nombreJugador);
-}
 let player, cursors, computers, collected = 0;
 let obstacles;
 let joystickVelocity = { x: 0, y: 0 };
