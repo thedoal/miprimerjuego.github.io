@@ -240,9 +240,9 @@ function create() {
   this.physics.add.overlap(player, computers, collectComputer, null, this);
   this.physics.add.overlap(player, obstacles, hitObstacle, null, this);
   
-  emitter = this.add.particles('estrella').createEmitter({
-    x: 0,
-    y: 0,
+  let particles = this.add.particles('estrella');
+
+  emitter = particles.createEmitter({
     speed: { min: -100, max: 100 },
     angle: { min: 0, max: 360 },
     scale: { start: 0.3, end: 0 },
