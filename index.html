@@ -258,7 +258,8 @@ function create() {
       zone: joystickZone,
       mode: 'static',
       color: 'black',
-      position: { left: '50%', top: '50%' }
+      position: { left: '50%', top: '50%' },
+      restOpacity: 1
     });
 
     joystickManager.on('move', (evt, data) => {
