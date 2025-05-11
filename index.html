@@ -205,7 +205,8 @@ function create() {
 
       for (let i = 0; i < cantidadObstaculos; i++) {
         const x = Phaser.Math.Between(offsetX + 20, offsetX + juegoAncho - 20);
-        const tool = obstacles.create(x, offsetY - 20, 'tool').setScale(0.4);
+        const escalaObstaculo = window.innerWidth < 900 ? 0.25 : 0.4;
+        const tool = obstacles.create(x, offsetY - 20, 'tool').setScale(escalaObstaculo);
         tool.setVelocityY(Phaser.Math.Between(300 + tiempo * 2, 450 + tiempo * 2));
       }
     }
