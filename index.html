@@ -188,10 +188,14 @@ function create() {
   const escalaFinal = Math.max(escalaX, escalaY); // Escala que cubre toda la pantalla sin deformar
   bg.setScale(escalaFinal);
 
-  this.add.rectangle(offsetX, offsetY, juegoAncho, juegoAlto)
-    .setOrigin(0)
-    .setStrokeStyle(4, 0x000000)
-    .setDepth(1);
+  let marco = this.add.graphics();
+  marco.lineStyle(10, 0x2e4e1f, 1); // línea base gruesa (verde oscuro tipo bosque)
+  marco.strokeRect(offsetX - 2, offsetY - 2, juegoAncho + 4, juegoAlto + 4);
+
+  marco.lineStyle(4, 0x9bcd8a, 1); // línea superior más clara (tipo hoja viva)
+  marco.strokeRect(offsetX, offsetY, juegoAncho, juegoAlto);
+
+  marco.setDepth(1);
 
   this.physics.world.setBounds(offsetX, offsetY, juegoAncho, juegoAlto);
 
