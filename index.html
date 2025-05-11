@@ -115,7 +115,7 @@ let vidas = 3;
 let tiempo = 0;
 let cronometro;
 let animacionMovimientoActiva = false;
-
+let emitter;
 let juegoAncho, juegoAlto, offsetX, offsetY;
 
 const config = {
@@ -145,6 +145,7 @@ function preload() {
   this.load.image('tool', 'https://labs.phaser.io/assets/sprites/spikedball.png');
   this.load.image('goldenMouse', 'icons/raton-dorado.png');
   this.load.image('background', 'icons/1.png');
+  this.load.image('estrella', 'https://labs.phaser.io/assets/particles/yellow.png');
 
   // Sonidos
   this.load.audio('collect', 'https://labs.phaser.io/assets/audio/SoundEffects/p-ping.mp3');
@@ -239,6 +240,18 @@ function create() {
   this.physics.add.overlap(player, computers, collectComputer, null, this);
   this.physics.add.overlap(player, obstacles, hitObstacle, null, this);
   
+  emitter = this.add.particles('estrella').createEmitter({
+    x: 0,
+    y: 0,
+    speed: { min: -100, max: 100 },
+    angle: { min: 0, max: 360 },
+    scale: { start: 0.3, end: 0 },
+    alpha: { start: 1, end: 0 },
+    lifespan: 600,
+    quantity: 15,
+    on: false
+  });
+
   this.time.addEvent({
   delay: 15000,
   loop: true,
@@ -367,6 +380,8 @@ function collectComputer(player, computer) {
   computer.disableBody(true, true);
   collected++;
   document.getElementById('contador').textContent = `Computadores: ${collected}`;
+  emitter.setPosition(player.x, player.y);
+  emitter.explode();
   crearComputador(player.scene);
   this.tweens.add({
     targets: computer,
@@ -381,6 +396,8 @@ function collectGoldenMouse(player, mouse) {
   mouse.disableBody(true, true);
   vidas++;
   document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
+  emitter.setPosition(player.x, player.y);
+  emitter.explode();
   this.tweens.add({
     targets: mouse,
     scale: { from: 0.07, to: 0.11 },
