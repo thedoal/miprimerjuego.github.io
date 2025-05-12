@@ -361,17 +361,25 @@ document.getElementById('iniciarJuego').addEventListener('click', () => {
 
 </script>
 <script>
+  // Función que verifica si el dispositivo está en orientación horizontal
   function verificarOrientacion() {
+    // Obtiene el elemento que muestra el mensaje de bloqueo por orientación
     const bloqueo = document.getElementById('bloqueo-orientacion');
+    // Compara el ancho y alto de la ventana del navegador
+    // Si el ancho es mayor que el alto, significa que el dispositivo está en horizontal
     if (window.innerWidth > window.innerHeight) {
+      // Muestra el mensaje de bloqueo
       bloqueo.style.display = 'flex';
     } else {
+      // Oculta el mensaje si el dispositivo está en vertical
       bloqueo.style.display = 'none';
     }
   }
-
+  // Ejecuta la función cuando se carga la página
   window.addEventListener('load', verificarOrientacion);
+  // Ejecuta la función si el usuario cambia el tamaño de la ventana
   window.addEventListener('resize', verificarOrientacion);
+  // Ejecuta la función si el usuario rota el dispositivo
   window.addEventListener('orientationchange', verificarOrientacion);
 </script>
 </body>
