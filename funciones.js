@@ -292,7 +292,7 @@ function guardarEnRankingRemoto(nombre, tiempo) {
 		});
 }
 //Obtener y mostrar el ranking actualizado
-function mostrarRankingRemoto() {
+/*function mostrarRankingRemoto() {
 	fetch(API_URL)
 		.then(res => res.json())
 		.then(data => {
@@ -308,4 +308,38 @@ function mostrarRankingRemoto() {
 				lista.appendChild(li);
 			});
 		});
-}
+}*/
+function mostrarRankingRemoto() {
+	fetch(API_URL)
+	  .then(res => res.json())
+	  .then(data => {
+		// Ordena el array primero por computadores (índice 2, mayor a menor),
+		// y si empatan, por tiempo (índice 1, menor a mayor)
+		data.sort((a, b) => {
+		  const compA = parseInt(a[2]); // Cantidad de computadores de A
+		  const compB = parseInt(b[2]); // Cantidad de computadores de B
+  
+		  if (compA !== compB) {
+			return compB - compA; // Orden descendente por computadores
+		  }
+  
+		  // Si empatan, comparar por tiempo en formato "MM:SS"
+		  const tiempoA = a[1].split(':').map(Number);
+		  const tiempoB = b[1].split(':').map(Number);
+		  const totalSegA = tiempoA[0] * 60 + tiempoA[1];
+		  const totalSegB = tiempoB[0] * 60 + tiempoB[1];
+  
+		  return totalSegA - totalSegB; // Orden ascendente por tiempo (más rápido es mejor)
+		});
+  
+		// Actualiza visualmente el ranking
+		const lista = document.getElementById('lista-ranking');
+		lista.innerHTML = ''; // Limpiar lista anterior
+  
+		data.slice(0, 5).forEach((fila, i) => {
+		  const li = document.createElement('li');
+		  li.textContent = `${i + 1}. ${fila[0]} - ${fila[1]} - Comp: ${fila[2]}`;
+		  lista.appendChild(li);
+		});
+	  });
+  }
