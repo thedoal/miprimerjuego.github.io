@@ -83,28 +83,45 @@
         list-style: none;
       }
     }
+    #bloqueo-orientacion {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    color: black;
+    font-family: sans-serif;
+    font-size: 20px;
+    text-align: center;
+    z-index: 9999;
+    padding: 40px 20px;
+  }
   </style>
 </head>
 <body>
-
-<div id="hud">
-  <div id="jugador">Jugador: </div>
-  <div id="contador">Computadores: 0 / 5</div>
-  <div id="vidas">Vidas: 3</div>
-  <div id="tiempo">Tiempo: 00:00</div>
-</div>
-<div id="ranking">Ranking:<br><ul id="lista-ranking"></ul></div>
-<div id="joystick-zone"></div>
-<!-- Pantalla de introducción -->
-<div id="intro" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:2000; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px; font-family:sans-serif;">
-  <h1 style="font-size:28px; color:#2b2b2b;">¡Misión Computador!</h1>
-  <p style="max-width:600px; font-size:18px; color:#444;">
-    Bienvenido 1°A
-  </p>
-  <button id="iniciarJuego" style="margin-top:20px; padding:12px 24px; font-size:18px; background:#4CAF50; color:white; border:none; border-radius:8px; cursor:pointer;">
-    Comenzar misión
-  </button>
-</div>
+  <div id="bloqueo-orientacion">
+    ⚠️ Este juego se debe jugar en posición vertical.<br><br>
+    Por favor gira tu dispositivo para continuar.
+  </div>
+  <div id="hud">
+    <div id="jugador">Jugador: </div>
+    <div id="contador">Computadores: 0 / 5</div>
+    <div id="vidas">Vidas: 3</div>
+    <div id="tiempo">Tiempo: 00:00</div>
+  </div>
+  <div id="ranking">Ranking:<br><ul id="lista-ranking"></ul></div>
+  <div id="joystick-zone"></div>
+  <!-- Pantalla de introducción -->
+  <div id="intro" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:2000; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px; font-family:sans-serif;">
+    <h1 style="font-size:28px; color:#2b2b2b;">¡Misión Computador!</h1>
+    <p style="max-width:600px; font-size:18px; color:#444;">
+      Bienvenido 1°A
+    </p>
+    <button id="iniciarJuego" style="margin-top:20px; padding:12px 24px; font-size:18px; background:#4CAF50; color:white; border:none; border-radius:8px; cursor:pointer;">
+      Comenzar misión
+    </button>
+  </div>
 
 <script src="funciones.js"></script>
 <script>
@@ -342,6 +359,18 @@ document.getElementById('iniciarJuego').addEventListener('click', () => {
   iniciarJuego(); 
 });
 
+
+  window.addEventListener('load', verificarOrientacion);
+  window.addEventListener('resize', verificarOrientacion);
+  window.addEventListener('orientationchange', verificarOrientacion);
+  function verificarOrientacion() {
+    const bloqueo = document.getElementById('bloqueo-orientacion');
+    if (window.innerWidth > window.innerHeight) {
+      bloqueo.style.display = 'flex';
+    } else {
+      bloqueo.style.display = 'none';
+    }
+  }
 </script>
 </body>
 </html>
