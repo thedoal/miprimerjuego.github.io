@@ -359,10 +359,8 @@ document.getElementById('iniciarJuego').addEventListener('click', () => {
   iniciarJuego(); 
 });
 
-
-  window.addEventListener('load', verificarOrientacion);
-  window.addEventListener('resize', verificarOrientacion);
-  window.addEventListener('orientationchange', verificarOrientacion);
+</script>
+<script>
   function verificarOrientacion() {
     const bloqueo = document.getElementById('bloqueo-orientacion');
     if (window.innerWidth > window.innerHeight) {
@@ -371,6 +369,10 @@ document.getElementById('iniciarJuego').addEventListener('click', () => {
       bloqueo.style.display = 'none';
     }
   }
+
+  window.addEventListener('load', verificarOrientacion);
+  window.addEventListener('resize', verificarOrientacion);
+  window.addEventListener('orientationchange', verificarOrientacion);
 </script>
 </body>
 </html>
