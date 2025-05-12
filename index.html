@@ -361,28 +361,38 @@ document.getElementById('iniciarJuego').addEventListener('click', () => {
 
 </script>
 <script>
-// Función que verifica si el dispositivo está en posición horizontal en un móvil
-function verificarOrientacion() {
-  // Referencia al contenedor del mensaje de bloqueo por orientación
-  const bloqueo = document.getElementById('bloqueo-orientacion');
-  // Detecta si el usuario está en un dispositivo móvil usando el userAgent del navegador
-  const esMovil = /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
-  // Verifica si la orientación actual es horizontal (más ancho que alto)
-  const esHorizontal = window.innerWidth > window.innerHeight;
-  // Si es un dispositivo móvil y está en orientación horizontal, muestra el mensaje
-  if (esMovil && esHorizontal) {
-    bloqueo.style.display = 'flex';
-  } else {
-    // Si no está en horizontal o no es un móvil, oculta el mensaje
-    bloqueo.style.display = 'none';
+  /**
+   * Función que verifica la orientación del dispositivo y actúa en consecuencia:
+   * - Muestra u oculta el mensaje de advertencia.
+   * - Pausa o reanuda el juego si está en un dispositivo móvil.
+   */
+  function verificarOrientacion() {
+    // Obtiene el elemento del DOM que muestra el mensaje de bloqueo
+    const bloqueo = document.getElementById('bloqueo-orientacion');
+    // Verifica si el usuario está en un dispositivo móvil usando el user agent
+    const esMovil = /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+    // Verifica si la orientación es horizontal (más ancho que alto)
+    const esHorizontal = window.innerWidth > window.innerHeight;
+    // Si está en un móvil Y en orientación horizontal...
+    if (esMovil && esHorizontal) {
+      bloqueo.style.display = 'flex'; // Muestra el mensaje de advertencia
+      if (window.game) {
+        window.game.scene.pause(); // Pausa todas las escenas activas del juego de Phaser
+      }
+    } else {
+      // Si no está en horizontal, oculta el mensaje
+      bloqueo.style.display = 'none';
+      if (window.game) {
+        window.game.scene.resume(); // Reanuda el juego si estaba pausado
+      }
+    }
   }
-}
-// Ejecuta la verificación cuando se carga la página
-window.addEventListener('load', verificarOrientacion);
-// Ejecuta la verificación cada vez que se cambia el tamaño de la ventana (por ejemplo, al girar el dispositivo)
-window.addEventListener('resize', verificarOrientacion);
-// Ejecuta la verificación específicamente cuando cambia la orientación del dispositivo (mobile/tablet)
-window.addEventListener('orientationchange', verificarOrientacion);
+  // Ejecuta la verificación al cargar la página
+  window.addEventListener('load', verificarOrientacion);
+  // Ejecuta la verificación si cambia el tamaño de la ventana
+  window.addEventListener('resize', verificarOrientacion);
+  // Ejecuta la verificación si se rota el dispositivo
+  window.addEventListener('orientationchange', verificarOrientacion);
 </script>
 </body>
 </html>
