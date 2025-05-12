@@ -361,26 +361,28 @@ document.getElementById('iniciarJuego').addEventListener('click', () => {
 
 </script>
 <script>
-  // Función que verifica si el dispositivo está en orientación horizontal
-  function verificarOrientacion() {
-    // Obtiene el elemento que muestra el mensaje de bloqueo por orientación
-    const bloqueo = document.getElementById('bloqueo-orientacion');
-    // Compara el ancho y alto de la ventana del navegador
-    // Si el ancho es mayor que el alto, significa que el dispositivo está en horizontal
-    if (window.innerWidth > window.innerHeight) {
-      // Muestra el mensaje de bloqueo
-      bloqueo.style.display = 'flex';
-    } else {
-      // Oculta el mensaje si el dispositivo está en vertical
-      bloqueo.style.display = 'none';
-    }
+// Función que verifica si el dispositivo está en posición horizontal en un móvil
+function verificarOrientacion() {
+  // Referencia al contenedor del mensaje de bloqueo por orientación
+  const bloqueo = document.getElementById('bloqueo-orientacion');
+  // Detecta si el usuario está en un dispositivo móvil usando el userAgent del navegador
+  const esMovil = /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+  // Verifica si la orientación actual es horizontal (más ancho que alto)
+  const esHorizontal = window.innerWidth > window.innerHeight;
+  // Si es un dispositivo móvil y está en orientación horizontal, muestra el mensaje
+  if (esMovil && esHorizontal) {
+    bloqueo.style.display = 'flex';
+  } else {
+    // Si no está en horizontal o no es un móvil, oculta el mensaje
+    bloqueo.style.display = 'none';
   }
-  // Ejecuta la función cuando se carga la página
-  window.addEventListener('load', verificarOrientacion);
-  // Ejecuta la función si el usuario cambia el tamaño de la ventana
-  window.addEventListener('resize', verificarOrientacion);
-  // Ejecuta la función si el usuario rota el dispositivo
-  window.addEventListener('orientationchange', verificarOrientacion);
+}
+// Ejecuta la verificación cuando se carga la página
+window.addEventListener('load', verificarOrientacion);
+// Ejecuta la verificación cada vez que se cambia el tamaño de la ventana (por ejemplo, al girar el dispositivo)
+window.addEventListener('resize', verificarOrientacion);
+// Ejecuta la verificación específicamente cuando cambia la orientación del dispositivo (mobile/tablet)
+window.addEventListener('orientationchange', verificarOrientacion);
 </script>
 </body>
 </html>
