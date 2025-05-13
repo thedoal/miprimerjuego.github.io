@@ -151,7 +151,7 @@ function crearRatonDorado(scene) {
 	});
 }
 //Crea un joystick virtual para móviles con pantalla chica
-/*function crearJoystickMovil() {
+function crearJoystickMovil() {
 	// Verifica si la pantalla es pequeña (menor a 900px) y si ya se creó el joystick antes
 	if (window.innerWidth >= 900 || window.joystickCreado) return;
 
@@ -161,7 +161,7 @@ function crearRatonDorado(scene) {
 	// Crea el joystick usando la librería nipplejs
 	const joystickManager = nipplejs.create({
 		zone: joystickZone, // Zona donde se dibuja el joystick
-		mode: 'static', // Se mantiene fijo
+		mode: 'dynamic', // Se mantiene fijo
 		color: 'black', // Color del joystick
 		position: {
 			left: '50%',
@@ -187,60 +187,6 @@ function crearRatonDorado(scene) {
 
 	// Marca que el joystick ya fue creado para no duplicarlo
 	window.joystickCreado = true;
-}*/
-// Crea un joystick virtual dinámico para móviles que aparece donde el jugador toca
-function crearJoystickMovil() {
-	// Solo activa el joystick si es una pantalla móvil
-	if (window.innerWidth >= 900) return;
-
-	const joystickZone = document.getElementById('joystick-zone');
-	joystickZone.style.width = '100vw';
-	joystickZone.style.height = '100vh';
-	joystickZone.style.position = 'fixed';
-	joystickZone.style.top = '0';
-	joystickZone.style.left = '0';
-	joystickZone.style.zIndex = '1000';
-	joystickZone.style.display = 'block';
-
-	let joystick = null;
-	let activeTouchId = null;
-
-	joystickZone.addEventListener('touchstart', (event) => {
-		if (joystick || event.touches.length === 0) return;
-
-		const touch = event.touches[0];
-		activeTouchId = touch.identifier;
-
-		const x = touch.clientX;
-		const y = touch.clientY;
-
-		joystick = nipplejs.create({
-			zone: joystickZone,
-			mode: 'static',
-			color: 'black',
-			position: { left: `${x}px`, top: `${y}px` },
-			size: 80
-		});
-
-		// Registra eventos de inmediato después de crear el joystick
-		joystick.on('move', (evt, data) => {
-			const force = Math.min(data.force, 1);
-			joystickVelocity.x = Math.cos(data.angle.radian) * force;
-			joystickVelocity.y = Math.sin(data.angle.radian) * force * -1;
-		});
-
-		joystick.on('end', () => {
-			joystickVelocity = { x: 0, y: 0 };
-			joystick.destroy();
-			joystick = null;
-			activeTouchId = null;
-		});
-	});
-
-	joystickZone.addEventListener('touchmove', (event) => {
-		if (!joystick || activeTouchId === null) return;
-		event.preventDefault();
-	}, { passive: false });
 }
 
 //Guarda al recolectar un computador
