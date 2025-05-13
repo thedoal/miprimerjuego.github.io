@@ -151,7 +151,7 @@ function crearRatonDorado(scene) {
 	});
 }
 //Crea un joystick virtual para móviles con pantalla chica
-/*function crearJoystickMovil() {
+function crearJoystickMovil() {
 	// Verifica si la pantalla es pequeña (menor a 900px) y si ya se creó el joystick antes
 	if (window.innerWidth >= 900 || window.joystickCreado) return;
 
@@ -161,7 +161,7 @@ function crearRatonDorado(scene) {
 	// Crea el joystick usando la librería nipplejs
 	const joystickManager = nipplejs.create({
 		zone: joystickZone, // Zona donde se dibuja el joystick
-		mode: 'dynamic', // Se mantiene fijo
+		mode: 'static', // Se mantiene fijo
 		color: 'black', // Color del joystick
 		position: {
 			left: '50%',
@@ -186,47 +186,6 @@ function crearRatonDorado(scene) {
 	});
 
 	// Marca que el joystick ya fue creado para no duplicarlo
-	window.joystickCreado = true;
-}*/
-// Crea un joystick virtual para móviles con pantalla pequeña
-function crearJoystickMovil() {
-	// Solo activa el joystick si es una pantalla móvil (ancho menor a 900px) y no se ha creado aún
-	if (window.innerWidth >= 900 || window.joystickCreado) return;
-
-	// Selecciona el contenedor del joystick desde el DOM
-	const joystickZone = document.getElementById('joystick-zone');
-
-	// Estilos para que el div cubra toda la pantalla
-	joystickZone.style.width = '100vw';              // 100% del ancho de la ventana
-	joystickZone.style.height = '100vh';             // 100% del alto de la ventana
-	joystickZone.style.position = 'fixed';           // Posición fija en pantalla
-	joystickZone.style.top = '0';
-	joystickZone.style.left = '0';
-	joystickZone.style.zIndex = '1000';              // Asegura que esté sobre otros elementos
-	joystickZone.style.display = 'block';            // Lo hace visible
-
-	// Crea el joystick con nipplejs en modo dinámico
-	const joystickManager = nipplejs.create({
-		zone: joystickZone,       // Área donde se permite crear el joystick
-		mode: 'dynamic',          // Aparece donde se toca la pantalla
-		color: 'black',           // Color del joystick
-		restOpacity: 1,           // Opacidad cuando no se está moviendo
-		size: 80                  // Tamaño del joystick (puedes ajustar)
-	});
-
-	// Evento que se dispara al mover el joystick
-	joystickManager.on('move', (evt, data) => {
-		const force = Math.min(data.force, 1); // Fuerza del movimiento (máximo 1)
-		joystickVelocity.x = Math.cos(data.angle.radian) * force;     // Dirección X
-		joystickVelocity.y = Math.sin(data.angle.radian) * force * -1; // Dirección Y (invertida)
-	});
-
-	// Evento que se dispara cuando se suelta el joystick
-	joystickManager.on('end', () => {
-		joystickVelocity = { x: 0, y: 0 }; // Detiene el movimiento del jugador
-	});
-
-	// Marca que ya se ha creado un joystick para evitar múltiples instancias
 	window.joystickCreado = true;
 }
 
