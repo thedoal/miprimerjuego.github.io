@@ -253,7 +253,7 @@ function collectGoldenMouse(player, mouse) {
 	const opcionesTexto = pregunta.opciones.map((op, i) => `${i + 1}. ${op}`).join('\n');
 	// Pregunta al jugador
 	const respuesta = prompt(
-	  `🎁 ¡Ratón dorado encontrado!\n\nSi quieres una vida extra, responde:\n\n${pregunta.pregunta}\n\n${opcionesTexto}`
+	  `🎁 ¡Ratón dorado encontrado!\n\nSi quieres una vida extra, responde el numero de la respuesta correcta:\n\n${pregunta.pregunta}\n\n${opcionesTexto}`
 	);
 	// Verifica si la respuesta es válida
 	if (
