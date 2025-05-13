@@ -190,55 +190,64 @@ function crearRatonDorado(scene) {
 }*/
 // Crea un joystick virtual dinámico para móviles que aparece donde el jugador toca
 function crearJoystickMovil() {
-	// Solo activa el joystick en pantallas pequeñas (móviles)
+	// Solo activa el joystick si es una pantalla móvil (menor a 900px)
 	if (window.innerWidth >= 900) return;
 
-	// Obtiene el contenedor del joystick desde el DOM
+	// Obtiene el contenedor del joystick y lo expande para cubrir toda la pantalla
 	const joystickZone = document.getElementById('joystick-zone');
-
-	// Configura el contenedor para cubrir toda la pantalla y poder detectar cualquier toque
-	joystickZone.style.width = '100vw';         // Ocupa todo el ancho
-	joystickZone.style.height = '100vh';        // Ocupa todo el alto
-	joystickZone.style.position = 'fixed';      // Posición fija sobre el contenido
+	joystickZone.style.width = '100vw';
+	joystickZone.style.height = '100vh';
+	joystickZone.style.position = 'fixed';
 	joystickZone.style.top = '0';
 	joystickZone.style.left = '0';
-	joystickZone.style.zIndex = '1000';         // Se asegura de estar encima de otros elementos
-	joystickZone.style.display = 'block';       // Visible
+	joystickZone.style.zIndex = '1000';
+	joystickZone.style.display = 'block';
 
-	let joystick = null; // Variable para almacenar la instancia actual del joystick
+	let joystick = null;         // Referencia al joystick actual (si está activo)
+	let activeTouchId = null;    // ID del dedo que está controlando el joystick
 
-	// Evento que se dispara cuando el jugador toca la pantalla
+	// Evento que se activa al tocar la pantalla
 	joystickZone.addEventListener('touchstart', (event) => {
-		if (joystick) return; // Si ya hay un joystick activo, no crea otro
+		// Si ya hay un joystick activo o no hay toques, no hace nada
+		if (joystick || event.touches.length === 0) return;
 
-		// Obtiene las coordenadas del primer toque
+		// Usa el primer dedo que toca como referencia
 		const touch = event.touches[0];
+		activeTouchId = touch.identifier;
+
+		// Posición donde aparece el joystick (donde se tocó)
 		const x = touch.clientX;
 		const y = touch.clientY;
 
-		// Crea un joystick estático justo en la posición del toque
+		// Crea el joystick en modo estático, con el dedo como centro
 		joystick = nipplejs.create({
-			zone: joystickZone,       // Zona donde se renderiza
-			mode: 'static',           // No se mueve, se queda fijo donde se creó
-			color: 'black',           // Color del joystick
-			position: { left: `${x}px`, top: `${y}px` }, // Posición del dedo
-			size: 80                  // Tamaño del joystick
+			zone: joystickZone,
+			mode: 'static',
+			color: 'black',
+			position: { left: `${x}px`, top: `${y}px` },
+			size: 80 // Tamaño visual del joystick
 		});
 
-		// Evento de movimiento: calcula la dirección y fuerza del joystick
+		// Cuando el jugador mueve el dedo, se calcula la dirección
 		joystick.on('move', (evt, data) => {
-			const force = Math.min(data.force, 1); // Limita la fuerza a 1
+			const force = Math.min(data.force, 1); // Limita fuerza máxima a 1
 			joystickVelocity.x = Math.cos(data.angle.radian) * force;
-			joystickVelocity.y = Math.sin(data.angle.radian) * force * -1; // Invertimos Y para que suba correctamente
+			joystickVelocity.y = Math.sin(data.angle.radian) * force * -1; // Invertido Y
 		});
 
-		// Evento al soltar el dedo: reinicia velocidad y destruye el joystick
+		// Cuando se suelta el dedo, se destruye el joystick
 		joystick.on('end', () => {
-			joystickVelocity = { x: 0, y: 0 }; // Detiene al jugador
-			joystick.destroy();               // Elimina el joystick visualmente
-			joystick = null;                  // Libera la variable
+			joystickVelocity = { x: 0, y: 0 }; // Detiene movimiento
+			joystick.destroy();               // Elimina joystick
+			joystick = null;
+			activeTouchId = null;
 		});
 	});
+	// Previene el scroll del navegador mientras se mueve el joystick
+	joystickZone.addEventListener('touchmove', (event) => {
+		if (!joystick || activeTouchId === null) return;
+		event.preventDefault(); // Evita el desplazamiento de la página
+	}, { passive: false });
 }
 
 //Guarda al recolectar un computador
