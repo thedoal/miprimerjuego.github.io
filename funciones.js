@@ -190,10 +190,9 @@ function crearRatonDorado(scene) {
 }*/
 // Crea un joystick virtual dinámico para móviles que aparece donde el jugador toca
 function crearJoystickMovil() {
-	// Activa el joystick solo si el dispositivo tiene una pantalla menor a 900px (modo móvil)
+	// Solo activa el joystick si es una pantalla móvil
 	if (window.innerWidth >= 900) return;
 
-	// Configura el área del joystick para cubrir toda la pantalla
 	const joystickZone = document.getElementById('joystick-zone');
 	joystickZone.style.width = '100vw';
 	joystickZone.style.height = '100vh';
@@ -203,53 +202,41 @@ function crearJoystickMovil() {
 	joystickZone.style.zIndex = '1000';
 	joystickZone.style.display = 'block';
 
-	let joystick = null;         // Referencia al joystick actual
-	let activeTouchId = null;    // ID del dedo que está controlando el joystick
+	let joystick = null;
+	let activeTouchId = null;
 
-	// Evento que se ejecuta cuando se toca la pantalla
 	joystickZone.addEventListener('touchstart', (event) => {
-		// Si ya hay un joystick activo o no hay toques, no se hace nada
 		if (joystick || event.touches.length === 0) return;
 
-		// Se usa el primer dedo que toca la pantalla
 		const touch = event.touches[0];
 		activeTouchId = touch.identifier;
 
-		// Se obtiene la posición donde se tocó para ubicar el joystick
 		const x = touch.clientX;
 		const y = touch.clientY;
 
-		// Se crea el joystick en modo estático en la posición del toque
 		joystick = nipplejs.create({
 			zone: joystickZone,
 			mode: 'static',
 			color: 'black',
 			position: { left: `${x}px`, top: `${y}px` },
-			size: 80 // Tamaño del joystick
+			size: 80
 		});
 
-		// Se espera un pequeño retraso para asegurar que el joystick esté correctamente instanciado
-		setTimeout(() => {
-			if (!joystick) return;
+		// Registra eventos de inmediato después de crear el joystick
+		joystick.on('move', (evt, data) => {
+			const force = Math.min(data.force, 1);
+			joystickVelocity.x = Math.cos(data.angle.radian) * force;
+			joystickVelocity.y = Math.sin(data.angle.radian) * force * -1;
+		});
 
-			// Evento que se ejecuta cuando el usuario mueve el joystick
-			joystick.on('move', (evt, data) => {
-				const force = Math.min(data.force, 1); // Limita la fuerza a un máximo de 1
-				joystickVelocity.x = Math.cos(data.angle.radian) * force;
-				joystickVelocity.y = Math.sin(data.angle.radian) * force * -1; // Inversión del eje Y
-			});
-
-			// Evento que se ejecuta cuando se suelta el joystick
-			joystick.on('end', () => {
-				joystickVelocity = { x: 0, y: 0 }; // Detiene el movimiento
-				joystick.destroy();               // Elimina el joystick
-				joystick = null;
-				activeTouchId = null;
-			});
-		}, 50); // Retraso corto para asegurar correcta inicialización
+		joystick.on('end', () => {
+			joystickVelocity = { x: 0, y: 0 };
+			joystick.destroy();
+			joystick = null;
+			activeTouchId = null;
+		});
 	});
 
-	// Previene el scroll del navegador mientras el jugador usa el joystick
 	joystickZone.addEventListener('touchmove', (event) => {
 		if (!joystick || activeTouchId === null) return;
 		event.preventDefault();
