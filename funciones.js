@@ -151,7 +151,7 @@ function crearRatonDorado(scene) {
 	});
 }
 //Crea un joystick virtual para móviles con pantalla chica
-function crearJoystickMovil() {
+/*function crearJoystickMovil() {
 	// Verifica si la pantalla es pequeña (menor a 900px) y si ya se creó el joystick antes
 	if (window.innerWidth >= 900 || window.joystickCreado) return;
 
@@ -187,7 +187,60 @@ function crearJoystickMovil() {
 
 	// Marca que el joystick ya fue creado para no duplicarlo
 	window.joystickCreado = true;
+}*/
+// Crea un joystick virtual dinámico para móviles que aparece donde el jugador toca
+function crearJoystickMovil() {
+	// Solo activa el joystick en pantallas pequeñas (móviles)
+	if (window.innerWidth >= 900) return;
+
+	// Obtiene el contenedor del joystick desde el DOM
+	const joystickZone = document.getElementById('joystick-zone');
+
+	// Configura el contenedor para cubrir toda la pantalla y poder detectar cualquier toque
+	joystickZone.style.width = '100vw';         // Ocupa todo el ancho
+	joystickZone.style.height = '100vh';        // Ocupa todo el alto
+	joystickZone.style.position = 'fixed';      // Posición fija sobre el contenido
+	joystickZone.style.top = '0';
+	joystickZone.style.left = '0';
+	joystickZone.style.zIndex = '1000';         // Se asegura de estar encima de otros elementos
+	joystickZone.style.display = 'block';       // Visible
+
+	let joystick = null; // Variable para almacenar la instancia actual del joystick
+
+	// Evento que se dispara cuando el jugador toca la pantalla
+	joystickZone.addEventListener('touchstart', (event) => {
+		if (joystick) return; // Si ya hay un joystick activo, no crea otro
+
+		// Obtiene las coordenadas del primer toque
+		const touch = event.touches[0];
+		const x = touch.clientX;
+		const y = touch.clientY;
+
+		// Crea un joystick estático justo en la posición del toque
+		joystick = nipplejs.create({
+			zone: joystickZone,       // Zona donde se renderiza
+			mode: 'static',           // No se mueve, se queda fijo donde se creó
+			color: 'black',           // Color del joystick
+			position: { left: `${x}px`, top: `${y}px` }, // Posición del dedo
+			size: 80                  // Tamaño del joystick
+		});
+
+		// Evento de movimiento: calcula la dirección y fuerza del joystick
+		joystick.on('move', (evt, data) => {
+			const force = Math.min(data.force, 1); // Limita la fuerza a 1
+			joystickVelocity.x = Math.cos(data.angle.radian) * force;
+			joystickVelocity.y = Math.sin(data.angle.radian) * force * -1; // Invertimos Y para que suba correctamente
+		});
+
+		// Evento al soltar el dedo: reinicia velocidad y destruye el joystick
+		joystick.on('end', () => {
+			joystickVelocity = { x: 0, y: 0 }; // Detiene al jugador
+			joystick.destroy();               // Elimina el joystick visualmente
+			joystick = null;                  // Libera la variable
+		});
+	});
 }
+
 //Guarda al recolectar un computador
 function collectComputer(player, computer) {
 	collectSound.play(); //Reproducir sonido de recolección
@@ -217,32 +270,6 @@ function collectComputer(player, computer) {
 		onComplete: () => computer.disableBody(true, true) // Asegura que quede deshabilitado
 	});
 }
-//Guarda al recolectar un ratón dorado
-/*function collectGoldenMouse(player, mouse) {
-	collectSound.play(); //Reproducir sonido de recolección (puede ser el mismo de los computadores)
-
-	mouse.disableBody(true, true); //Desactivar y ocultar el ratón dorado
-
-	vidas++; //Aumentar la cantidad de vidas
-
-	//Actualizar el texto del HUD con las nuevas vidas
-	document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
-
-	//Animación de desaparición suave con escalado y desvanecido
-	this.tweens.add({
-		targets: mouse,
-		scale: {
-			from: 0.07,
-			to: 0.11
-		}, // Puede simular una leve explosión antes de desaparecer
-		alpha: {
-			from: 1,
-			to: 0
-		}, // Efecto de desvanecimiento
-		duration: 300,
-		onComplete: () => mouse.disableBody(true, true) // Asegura que no quede visible o activo
-	});
-}*/
 //Guarda al recolectar un ratón dorado
 function collectGoldenMouse(player, mouse) {
 	collectSound.play(); // Reproduce sonido de recolección
