@@ -218,7 +218,7 @@ function collectComputer(player, computer) {
 	});
 }
 //Guarda al recolectar un ratón dorado
-function collectGoldenMouse(player, mouse) {
+/*function collectGoldenMouse(player, mouse) {
 	collectSound.play(); //Reproducir sonido de recolección (puede ser el mismo de los computadores)
 
 	mouse.disableBody(true, true); //Desactivar y ocultar el ratón dorado
@@ -242,7 +242,36 @@ function collectGoldenMouse(player, mouse) {
 		duration: 300,
 		onComplete: () => mouse.disableBody(true, true) // Asegura que no quede visible o activo
 	});
+}*/
+function collectGoldenMouse(player, mouse) {
+	collectSound.play(); //Reproducir sonido de recolección (puede ser el mismo de los computadores)
+	// Desactivar y ocultar el ratón dorado
+	mouse.disableBody(true, true);
+	// Seleccionar una pregunta aleatoria
+	const pregunta = PREGUNTAS[Math.floor(Math.random() * PREGUNTAS.length)];
+	// Pedir respuesta al jugador
+	const respuesta = prompt(`🎁 ¡Ratón dorado encontrado!\n\nSi quieres una vida extra, responde:\n${pregunta.pregunta}`);
+	// Validar respuesta
+	if (respuesta && respuesta.trim().toLowerCase() === pregunta.respuesta.toLowerCase()) {
+		collectSound.play(); // sonido si responde bien
+		vidas++; // dar vida
+		alert('✅ ¡Correcto! Ganaste una vida extra.');
+	} else {
+		hitSound.play(); // sonido si falla
+		alert(`❌ Respuesta incorrecta. La respuesta era: ${pregunta.respuesta}`);
+	}
+	// Actualizar el HUD de vidas
+	document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
+	// Animación de desaparición del ratón
+	this.tweens.add({
+		targets: mouse,
+		scale: { from: 0.07, to: 0.11 },
+		alpha: { from: 1, to: 0 },
+		duration: 300,
+		onComplete: () => mouse.disableBody(true, true)
+	});
 }
+
 //Guarda al ser golpeado por un obstáculo
 function hitObstacle(player, obstacle) {
 	obstacle.disableBody(true, true); //Desactiva y oculta el obstáculo tras el impacto
@@ -292,23 +321,6 @@ function guardarEnRankingRemoto(nombre, tiempo) {
 		});
 }
 //Obtener y mostrar el ranking actualizado
-/*function mostrarRankingRemoto() {
-	fetch(API_URL)
-		.then(res => res.json())
-		.then(data => {
-			// Selecciona el contenedor de la lista de ranking en el DOM
-			const lista = document.getElementById('lista-ranking');
-			lista.innerHTML = ''; // Limpia el contenido anterior
-
-			// Recorre las primeras 5 filas del ranking recibido
-			data.slice(0, 5).forEach((fila, i) => {
-				const li = document.createElement('li');
-				// Agrega el texto con nombre, tiempo y cantidad de computadores recolectados
-				li.textContent = `${i + 1}. ${fila[0]} - ${fila[1]} - Comp: ${fila[2]}`;
-				lista.appendChild(li);
-			});
-		});
-}*/
 function mostrarRankingRemoto() {
 	fetch(API_URL)
 	  .then(res => res.json())
