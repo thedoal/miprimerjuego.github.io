@@ -243,34 +243,41 @@ function collectComputer(player, computer) {
 		onComplete: () => mouse.disableBody(true, true) // Asegura que no quede visible o activo
 	});
 }*/
+//Guarda al recolectar un ratón dorado
 function collectGoldenMouse(player, mouse) {
-	collectSound.play(); //Reproducir sonido de recolección (puede ser el mismo de los computadores)
-	// Desactivar y ocultar el ratón dorado
-	mouse.disableBody(true, true);
-	// Seleccionar una pregunta aleatoria
+	collectSound.play(); // Reproduce sonido de recolección
+	mouse.disableBody(true, true); // Oculta el ratón dorado
+	// Selecciona una pregunta aleatoria
 	const pregunta = PREGUNTAS[Math.floor(Math.random() * PREGUNTAS.length)];
-	// Pedir respuesta al jugador
-	const respuesta = prompt(`🎁 ¡Ratón dorado encontrado!\n\nSi quieres una vida extra, responde:\n${pregunta.pregunta}`);
-	// Validar respuesta
-	if (respuesta && respuesta.trim().toLowerCase() === pregunta.respuesta.toLowerCase()) {
-		collectSound.play(); // sonido si responde bien
-		vidas++; // dar vida
-		alert('✅ ¡Correcto! Ganaste una vida extra.');
+	// Construye el texto de opciones enumeradas
+	const opcionesTexto = pregunta.opciones.map((op, i) => `${i + 1}. ${op}`).join('\n');
+	// Pregunta al jugador
+	const respuesta = prompt(
+	  `🎁 ¡Ratón dorado encontrado!\n\nSi quieres una vida extra, responde:\n\n${pregunta.pregunta}\n\n${opcionesTexto}`
+	);
+	// Verifica si la respuesta es válida
+	if (
+	  respuesta &&
+	  parseInt(respuesta) - 1 === pregunta.respuestaCorrecta
+	) {
+	  collectSound.play(); // Sonido correcto
+	  vidas++; // Suma una vida
+	  alert("✅ ¡Correcto! Ganaste una vida extra.");
 	} else {
-		hitSound.play(); // sonido si falla
-		alert(`❌ Respuesta incorrecta. La respuesta era: ${pregunta.respuesta}`);
+	  hitSound.play(); // Sonido incorrecto
+	  alert(`❌ Respuesta incorrecta.\nLa correcta era: ${pregunta.opciones[pregunta.respuestaCorrecta]}`);
 	}
-	// Actualizar el HUD de vidas
-	document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
-	// Animación de desaparición del ratón
+	// Actualiza el HUD
+	document.getElementById("vidas").textContent = `Vidas: ${vidas}`;
+	// Animación de desaparición
 	this.tweens.add({
-		targets: mouse,
-		scale: { from: 0.07, to: 0.11 },
-		alpha: { from: 1, to: 0 },
-		duration: 300,
-		onComplete: () => mouse.disableBody(true, true)
+	  targets: mouse,
+	  scale: { from: 0.07, to: 0.11 },
+	  alpha: { from: 1, to: 0 },
+	  duration: 300,
+	  onComplete: () => mouse.disableBody(true, true)
 	});
-}
+  }
 
 //Guarda al ser golpeado por un obstáculo
 function hitObstacle(player, obstacle) {
