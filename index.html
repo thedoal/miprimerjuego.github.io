@@ -108,6 +108,63 @@
     padding: 40px 20px;
   }
   </style>
+  <style>
+    #intro {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: white;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+  
+    #intro h1 {
+      font-size: 22px;
+      margin-bottom: 10px;
+      color: #2b2b2b;
+    }
+  
+    #intro p {
+      font-size: 15px;
+      color: #444;
+      line-height: 1.5;
+      max-width: 480px;
+      margin-bottom: 20px;
+    }
+  
+    #iniciarJuego {
+      padding: 12px 24px;
+      font-size: 16px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  
+    @media (max-width: 400px) {
+      #intro h1 {
+        font-size: 20px;
+      }
+      #intro p {
+        font-size: 14px;
+      }
+      #iniciarJuego {
+        font-size: 15px;
+        padding: 10px 20px;
+      }
+    }
+  </style>
 </head>
 <body>
   <div id="bloqueo-orientacion">
@@ -123,9 +180,9 @@
   <div id="ranking">Ranking:<br><ul id="lista-ranking"></ul></div>
   <div id="joystick-zone"></div>
   <!-- Pantalla de introducción -->
-  <div id="intro" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:2000; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; font-family:sans-serif; padding:20px; overflow-y:auto;">
-    <h1 style="font-size:22px; color:#2b2b2b; margin-bottom:10px;">¡Misión Computador!</h1>
-    <p style="font-size:15px; color:#444; line-height:1.5; max-width:400px; margin-bottom:20px;">
+  <div id="intro">
+    <h1>¡Misión Computador!</h1>
+    <p>
       ¡Hola agente digital! ⚡<br><br>
       Los computadores desaparecieron. Algunos se escondieron y otros fueron robados por los peligrosos “Chatarra Bots”.<br><br>
       Tu misión es rescatar computadores 🖥️ y encontrar ratones dorados 🐭 que te darán poderes especiales.<br><br>
@@ -133,9 +190,7 @@
       Si encuentras un ratón dorado, responde una pregunta secreta. Si aciertas… ¡ganas una vida extra! 🎁<br><br>
       ¿Estás listo para comenzar tu misión digital?
     </p>
-    <button id="iniciarJuego" style="padding:10px 20px; font-size:16px; background:#4CAF50; color:white; border:none; border-radius:8px; cursor:pointer;">
-      Comenzar misión
-    </button>
+    <button id="iniciarJuego">Comenzar misión</button>
   </div>
 <script src="preguntas.js"></script>
 <script src="funciones.js"></script>
