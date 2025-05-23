@@ -95,7 +95,8 @@ function crearObstaculos(scene) {
 		loop: true,
 		callback: () => {
 			// Calcula la cantidad de obstáculos según el tiempo y la cantidad de computadores recogidos
-			const cantidad = 1 + Math.floor(tiempo / 10) + Math.floor(collected / 2);
+			//const cantidad = 1 + Math.floor(tiempo / 10) + Math.floor(collected / 2);
+			const cantidad = 1 + Math.floor(tiempo / 20) + Math.floor(collected / 4);
 			for (let i = 0; i < cantidad; i++) {
 				// Genera una posición horizontal aleatoria dentro del área de juego
 				const x = Phaser.Math.Between(offsetX + 20, offsetX + juegoAncho - 20);
