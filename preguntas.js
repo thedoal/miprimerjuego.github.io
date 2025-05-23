@@ -21,8 +21,8 @@ const PREGUNTAS = [
       "pregunta": "¿Cuál de estos es un hardware?",
       "opciones": [
         "Teclado",
-        "Excel",
-        "PowerPoint"
+        "YouTube",
+        "Max"
       ],
       "respuestaCorrecta": 0
     },
@@ -31,7 +31,7 @@ const PREGUNTAS = [
       "opciones": [
         "Mouse",
         "Internet",
-        "Word"
+        "Paint"
       ],
       "respuestaCorrecta": 0
     },
@@ -40,7 +40,7 @@ const PREGUNTAS = [
       "opciones": [
         "Impresora",
         "Correo electrónico",
-        "Paint"
+        "YouTube Kids"
       ],
       "respuestaCorrecta": 0
     },
@@ -48,8 +48,8 @@ const PREGUNTAS = [
       "pregunta": "¿Cuál de estos es un hardware?",
       "opciones": [
         "CPU",
-        "Chrome",
-        "PowerPoint"
+        "Navegador Web",
+        "Excel"
       ],
       "respuestaCorrecta": 0
     },
@@ -57,8 +57,8 @@ const PREGUNTAS = [
       "pregunta": "¿Cuál de estos es un hardware?",
       "opciones": [
         "Monitor",
-        "Paint",
-        "PowerPoint"
+        "Fornite",
+        "Among Us"
       ],
       "respuestaCorrecta": 0
     },
@@ -477,6 +477,15 @@ const PREGUNTAS = [
       "respuestaCorrecta": 2
     },
     {
+      "pregunta": "¿Donde se guarda la información temporal en el computador?",
+      "opciones": [
+        "Youtube",
+        "Minecraft",
+        "Memoria RAM"
+      ],
+      "respuestaCorrecta": 2
+    },
+    {
       "pregunta": "¿Con qué parte del computador movemos el cursor?",
       "opciones": [
         "Teclado",
@@ -500,6 +509,51 @@ const PREGUNTAS = [
         "Excel",
         "Impresora",
         "Monitor"
+      ],
+      "respuestaCorrecta": 0
+    },
+    {
+      "pregunta": "¿Dónde se guarda la información por mucho tiempo en el computador?",
+      "opciones": [
+        "Facebook",
+        "Disco duro",
+        "Pantalla"
+      ],
+      "respuestaCorrecta": 1
+    },
+    {
+      "pregunta": "¿Cuál es la parte del computador donde se conectan todas las otras partes?",
+      "opciones": [
+        "Tarjeta madre",
+        "Teclado",
+        "Ratón"
+      ],
+      "respuestaCorrecta": 0
+    },
+    {
+      "pregunta": "¿Qué parte del computador ayuda a que no se caliente mucho?",
+      "opciones": [
+        "Ventiladores",
+        "Impresora",
+        "Altavoces"
+      ],
+      "respuestaCorrecta": 0
+    },
+    {
+      "pregunta": "¿Qué parte del computador entrega la energía a todas las otras partes?",
+      "opciones": [
+        "Fuente de poder",
+        "Ratón",
+        "Internet"
+      ],
+      "respuestaCorrecta": 0
+    },
+    {
+      "pregunta": "¿Qué cosas conectan las partes del computador para que trabajen juntas?",
+      "opciones": [
+        "Cables",
+        "Lápices",
+        "Auriculares"
       ],
       "respuestaCorrecta": 0
     },

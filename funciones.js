@@ -265,21 +265,6 @@ function hitObstacle(player, obstacle) {
 	//Actualiza el HUD con el número actual de vidas
 	document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
 
-	/*Si ya no quedan vidas, termina el juego
-	if (vidas <= 0) {
-		clearInterval(cronometro); // Detiene el cronómetro
-
-		const tiempoTexto = document.getElementById('tiempo').textContent.replace('Tiempo: ', '');
-
-		//Guarda en el ranking remoto antes de terminar
-		guardarEnRankingRemoto(nombreJugador, tiempoTexto);
-
-		//Muestra mensaje de fin de juego y reinicia tras breve pausa
-		setTimeout(() => {
-			alert('💥 ¡Te golpearon demasiadas veces!\n\nFin del juego.');
-			window.location.reload(); //Reinicia la página para comenzar de nuevo
-		}, 300);
-	}*/
 	// Si al jugador ya no le quedan vidas
 	if (vidas <= 0) {
 		clearInterval(cronometro); // Detiene el cronómetro del juego
@@ -288,7 +273,7 @@ function hitObstacle(player, obstacle) {
 		const pregunta = PREGUNTAS[Math.floor(Math.random() * PREGUNTAS.length)];
 
 		// Construimos el texto a mostrar, incluyendo la pregunta y sus opciones numeradas
-		let textoPregunta = `📚 ¡Última oportunidad!\n\n${pregunta.pregunta}\n`;
+		let textoPregunta = `📚 ¡Última oportunidad!, responde el numero de la respuesta correcta: \n\n${pregunta.pregunta}\n`;
 		pregunta.opciones.forEach((op, i) => {
 			textoPregunta += `${i + 1}: ${op}\n`; // Muestra las opciones como 1, 2, 3, ...
 		});

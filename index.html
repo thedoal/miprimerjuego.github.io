@@ -183,7 +183,7 @@
   <div id="intro">
     <h1>¡Misión Computador!</h1>
     <p>
-      ¡Hola agente digital! ⚡<br><br>
+      ¡Hola Explorador Digital! ⚡<br><br>
       Los computadores desaparecieron. Algunos se escondieron y otros fueron robados por los peligrosos “Chatarra Bots”.<br><br>
       Tu misión es rescatar computadores 🖥️ y encontrar ratones dorados 🐭 que te darán poderes especiales.<br><br>
       ¡Cuidado! Herramientas caen del cielo y te quitan vidas. Usa tus habilidades para esquivarlas.<br><br>
@@ -329,7 +329,6 @@ function create() {
 
   // Crear al jugador con escalado según el dispositivo
   const escalaJugador = window.innerWidth < 900 ? 1.1 : 1.5;
-  //player = this.physics.add.sprite(offsetX + 100, offsetY + 100, 'student').setScale(escalaJugador);
   // Posicionamos más abajo para evitar impactos inmediatos
   const startY = offsetY + juegoAlto * 0.7;
   player = this.physics.add.sprite(offsetX + 100, startY, 'student').setScale(escalaJugador);
