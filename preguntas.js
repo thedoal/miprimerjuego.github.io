@@ -3,8 +3,17 @@ const PREGUNTAS = [
       "pregunta": "¿Cuál de estos es un hardware?",
       "opciones": [
         "Monitor",
-        "Paint",
-        "Word"
+        "Minecraft",
+        "Netflix"
+      ],
+      "respuestaCorrecta": 0
+    },
+    {
+      "pregunta": "¿Cuál parte del computador es como el cerebro que piensa?",
+      "opciones": [
+        "La CPU",
+        "La pantalla",
+        "El mouse"
       ],
       "respuestaCorrecta": 0
     },
