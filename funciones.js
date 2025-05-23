@@ -265,7 +265,7 @@ function hitObstacle(player, obstacle) {
 	//Actualiza el HUD con el número actual de vidas
 	document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
 
-	//Si ya no quedan vidas, termina el juego
+	/*Si ya no quedan vidas, termina el juego
 	if (vidas <= 0) {
 		clearInterval(cronometro); // Detiene el cronómetro
 
@@ -279,6 +279,45 @@ function hitObstacle(player, obstacle) {
 			alert('💥 ¡Te golpearon demasiadas veces!\n\nFin del juego.');
 			window.location.reload(); //Reinicia la página para comenzar de nuevo
 		}, 300);
+	}*/
+	// Si al jugador ya no le quedan vidas
+	if (vidas <= 0) {
+		clearInterval(cronometro); // Detiene el cronómetro del juego
+
+		// Elegimos una pregunta aleatoria del arreglo de preguntas
+		const pregunta = PREGUNTAS[Math.floor(Math.random() * PREGUNTAS.length)];
+
+		// Construimos el texto a mostrar, incluyendo la pregunta y sus opciones numeradas
+		let textoPregunta = `📚 ¡Última oportunidad!\n\n${pregunta.pregunta}\n`;
+		pregunta.opciones.forEach((op, i) => {
+			textoPregunta += `${i + 1}: ${op}\n`; // Muestra las opciones como 1, 2, 3, ...
+		});
+
+		// Mostramos la pregunta al jugador y solicitamos una respuesta
+		const respuesta = prompt(textoPregunta);
+
+		// Si responde correctamente (el índice ingresado coincide con la respuesta correcta)
+		if (respuesta && parseInt(respuesta) - 1 === pregunta.respuestaCorrecta) {
+			alert("✅ ¡Correcto! Obtienes una vida extra.");
+
+			vidas = 1; // Le damos una vida al jugador
+			document.getElementById('vidas').textContent = `Vidas: ${vidas}`; // Actualizamos el HUD
+
+			iniciarCronometro(); // Reactivamos el cronómetro para que siga el juego
+
+		} else {
+			// Si responde incorrectamente o cancela el prompt
+			alert(`❌ Respuesta incorrecta.\n\nFin del juego.`);
+
+			// Guardamos los datos del jugador en el ranking
+			const tiempoTexto = document.getElementById('tiempo').textContent.replace('Tiempo: ', '');
+			guardarEnRankingRemoto(nombreJugador, tiempoTexto);
+
+			// Reiniciamos el juego tras una breve pausa
+			setTimeout(() => {
+				window.location.reload();
+			}, 300);
+		}
 	}
 }
 //Enviar datos del jugador al ranking

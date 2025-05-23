@@ -259,7 +259,10 @@ function create() {
 
   // Crear al jugador con escalado según el dispositivo
   const escalaJugador = window.innerWidth < 900 ? 1.1 : 1.5;
-  player = this.physics.add.sprite(offsetX + 100, offsetY + 100, 'student').setScale(escalaJugador);
+  //player = this.physics.add.sprite(offsetX + 100, offsetY + 100, 'student').setScale(escalaJugador);
+  // Posicionamos más abajo para evitar impactos inmediatos
+  const startY = offsetY + juegoAlto * 0.7;
+  player = this.physics.add.sprite(offsetX + 100, startY, 'student').setScale(escalaJugador);
   player.setCollideWorldBounds(true); // Prevenir que el jugador salga del área
 
   // Configurar controles de teclado
