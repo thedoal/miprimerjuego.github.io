@@ -1,3 +1,4 @@
+let preguntaFinalYaMostrada = false;
 //Funcion para iniciar el juego
 function iniciarJuego() {
 	if (window.game) {
