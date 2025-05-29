@@ -256,7 +256,7 @@ function collectGoldenMouse(player, mouse) {
   }
 
 //Guarda al ser golpeado por un obstáculo
-function hitObstacle(player, obstacle) {
+/*function hitObstacle(player, obstacle) {
 	obstacle.disableBody(true, true); //Desactiva y oculta el obstáculo tras el impacto
 
 	hitSound.play(); //Reproduce sonido de golpe
@@ -300,6 +300,54 @@ function hitObstacle(player, obstacle) {
 			guardarEnRankingRemoto(nombreJugador, tiempoTexto);
 
 			// Reiniciamos el juego tras una breve pausa
+			setTimeout(() => {
+				window.location.reload();
+			}, 300);
+		}
+	}
+}*/
+function hitObstacle(player, obstacle) {
+	obstacle.disableBody(true, true); // Desactiva y oculta el obstáculo tras el impacto
+	hitSound.play(); // Reproduce sonido de golpe
+
+	// Si ya se hizo la pregunta final antes y aún así vuelve a perder vidas, termina el juego sin preguntar de nuevo
+	if (vidas <= 1 && preguntaFinalYaMostrada) {
+		vidas = 0;
+		document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
+		alert(`❌ Fin del juego.`);
+		const tiempoTexto = document.getElementById('tiempo').textContent.replace('Tiempo: ', '');
+		guardarEnRankingRemoto(nombreJugador, tiempoTexto);
+		setTimeout(() => {
+			window.location.reload();
+		}, 300);
+		return;
+	}
+
+	vidas--; // Resta una vida
+	document.getElementById('vidas').textContent = `Vidas: ${vidas}`; // Actualiza HUD
+
+	// Si el jugador se quedó sin vidas y aún no se ha hecho la pregunta final
+	if (vidas <= 0 && !preguntaFinalYaMostrada) {
+		clearInterval(cronometro);
+		preguntaFinalYaMostrada = true; // Marca que ya se hizo la pregunta
+
+		const pregunta = PREGUNTAS[Math.floor(Math.random() * PREGUNTAS.length)];
+		let textoPregunta = `📚 ¡Última oportunidad! Responde el número de la respuesta correcta:\n\n${pregunta.pregunta}\n`;
+		pregunta.opciones.forEach((op, i) => {
+			textoPregunta += `${i + 1}: ${op}\n`;
+		});
+
+		const respuesta = prompt(textoPregunta);
+
+		if (respuesta && parseInt(respuesta) - 1 === pregunta.respuestaCorrecta) {
+			alert("✅ ¡Correcto! Obtienes una vida extra.");
+			vidas = 1;
+			document.getElementById('vidas').textContent = `Vidas: ${vidas}`;
+			iniciarCronometro();
+		} else {
+			alert(`❌ Respuesta incorrecta.\n\nFin del juego.`);
+			const tiempoTexto = document.getElementById('tiempo').textContent.replace('Tiempo: ', '');
+			guardarEnRankingRemoto(nombreJugador, tiempoTexto);
 			setTimeout(() => {
 				window.location.reload();
 			}, 300);
